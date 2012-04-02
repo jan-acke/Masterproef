@@ -2,13 +2,6 @@
 class cdh3::hadoop {
   require java
   require cdh3::repository
-  # Exec {
-  #   environment => [ "JAVA_HOME=/opt/jdk1.6.0_31" , "zever=blablabla" ] 
-  # }
-
-  # exec { "\$JAVA_HOME/bin/java -version | sudo tee -a /tmp/zever":
-  #   environment => [ "JAVA_HOME=/opt/jdk1.6.0_31" ]
-  # }
   
   package { "hadoop-0.20":
     ensure => latest,
@@ -19,7 +12,7 @@ class cdh3::hadoop {
     ensure => directory,
     owner => hdfs,
     group => hadoop,
-    mode => 700,
+    mode => 711,
     require => Package["hadoop-0.20"],
   }
 
