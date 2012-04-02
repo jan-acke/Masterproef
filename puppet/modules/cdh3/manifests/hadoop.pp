@@ -48,10 +48,11 @@ class cdh3::hadoop::namenode {
     ensure => latest,
   }
 
-  exec { "hadoop-0.20 namenode -format":
-    user => "hdfs",
-    subscribe => Package["hadoop-0.20-namenode"],
-  }
+  #Interactive command :S
+  # exec { "hadoop-0.20 namenode -format":
+  #   user => "hdfs",
+  #   subscribe => Package["hadoop-0.20-namenode"],
+  # }
 }
 
 class cdh3::hadoop::datanode {
