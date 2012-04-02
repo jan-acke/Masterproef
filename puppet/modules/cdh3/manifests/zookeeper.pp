@@ -1,5 +1,6 @@
 
 class cdh3::zookeeper {
+  require java
   require cdh3::repository
   include cdh3::zookeeper::install,cdh3::zookeeper::service
 
@@ -8,6 +9,7 @@ class cdh3::zookeeper {
 class cdh3::zookeeper::install {
   package { "hadoop-zookeeper-server":
     ensure => latest,
+    require => Class["cdh3::zookeeper"],
   }
 
   file { "/var/zookeeper":
@@ -36,5 +38,6 @@ class cdh3::zookeeper::service {
   
   exec { "start-zk":
     command => "/usr/lib/zookeeper/bin/zkServer.sh start",
+    require => Class["cdh3::zookeeper::install"],
   }
 }
