@@ -5,7 +5,14 @@ class cdh3::hbase {
   
   package { "hadoop-hbase":
     ensure => latest,
-    notify => Class["cdh3::hbase::configuration"],
+  }
+
+  file { "/etc/hbase/conf":
+    owner => root,
+    group => root,
+    source => "puppet:///modules/cdh3/hbase/conf",
+    recurse => true,
+    require => Package["hadoop-hbase"],
   }
 }
 
