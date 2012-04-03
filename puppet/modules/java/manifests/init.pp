@@ -10,13 +10,13 @@ class java::install {
   
   exec { "/tmp/sun-jdk6.bin":
     require => File["/tmp/sun-jdk6.bin"],
+    creates => "/opt/jdk1.6.0_31",
     cwd => "/opt",
   }
   
 }
 
 class java {
-  if ( $javaexists != "true" ){
     include java::install
-  }
+
 }
