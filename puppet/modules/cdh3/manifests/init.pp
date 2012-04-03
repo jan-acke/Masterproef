@@ -3,7 +3,7 @@
 class cdh3::repository {
   include apt
   
-  apt::key {"dafuq":
+  apt::key {"cloudera":
       source  => "http://archive.cloudera.com/debian/archive.key",
     }
   

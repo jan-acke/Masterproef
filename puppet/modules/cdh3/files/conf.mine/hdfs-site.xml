@@ -4,6 +4,12 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
+
+  <property>
+    <name>dfs.permissions</name>
+    <value>false</value>
+  </property>
+
   <property>
     <name>dfs.name.dir</name>
     <value>/data/nn</value>

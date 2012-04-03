@@ -35,7 +35,7 @@ class cdh3::hadoop {
   }
 
   exec { "update-alternatives":
-    require => File[$location],
+    subscribe => File[$location],
     command => "update-alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /etc/hadoop-0.20/conf.mine/ 50",
   }
   
@@ -49,15 +49,23 @@ class cdh3::hadoop::namenode {
   }
 
   #Interactive command :S
-  # exec { "hadoop-0.20 namenode -format":
-  #   user => "hdfs",
-  #   subscribe => Package["hadoop-0.20-namenode"],
-  # }
+  exec { "yes Y | hadoop-0.20 namenode -format":
+    user => "hdfs",
+    require => Package["hadoop-0.20-namenode"],
+    logoutput => true,
+  }
+}
+
+class cdh3::hadoop::namenode::service {
+  require cdh3::hadoop::namenode
+  service { "hadoop-0.20-namenode":
+    ensure => running,
+    hasrestart => true,
+  }
 }
 
 class cdh3::hadoop::datanode {
   require cdh3::hadoop
-
   package { "hadoop-0.20-datanode":
     ensure => latest,
   }
@@ -65,7 +73,6 @@ class cdh3::hadoop::datanode {
 
 class cdh3::hadoop::secondarynamenode {
   require cdh3::hadoop
-
   package { "hadoop-0.20-secondarynamenode":
     ensure => latest,
   }
