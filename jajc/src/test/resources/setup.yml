@@ -1,0 +1,16 @@
+---
+#andere mogelijke details : cluster naam, type: byon/ec2, ami, instance groepnaam (handig voor amazon console), defaults
+
+general:
+  provider: byon
+  cluster_name: jajc_test
+
+instances:
+  - hardware:  m1.large
+    templates: puppetmaster
+    number: 1
+    hostname: node1
+  - hardware: m1.small
+    templates: 
+    number: 1
+    hostname: node2
