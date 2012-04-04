@@ -1,5 +1,7 @@
 *~
 *.bin
+*.class
+*.jar
 
 # eclipse gitignore from https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
 *.pydevproject
