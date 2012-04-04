@@ -1,2 +1,19 @@
 *~
 *.bin
+
+# eclipse gitignore from https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
