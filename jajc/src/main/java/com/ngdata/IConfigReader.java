@@ -1,10 +1,14 @@
 package com.ngdata;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.ngdata.bo.Instance;
 
 
 public interface IConfigReader {
 
-	public List<Map<String,String>> getInstances();
+	//Properties of an instance
+	public Set<Instance> getInstances();
 	public Map<String,String> getGeneral();
+
 }

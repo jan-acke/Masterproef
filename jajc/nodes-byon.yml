@@ -1,7 +1,6 @@
-
 nodes:
     - id: vagrant1
-      hostname: node1
+      hostname: puppet
       os_arch: x86
       os_family: ubuntu
       os_description: ubuntu
@@ -11,9 +10,13 @@ nodes:
       credential: vagrant
       #credential_url: file:///home/jacke/.vagrant.d/insecure_private_key
       sudo_password: vagrant
+      tags: 
+        - puppetmaster 
+        - cdh3::hadoop::datanode
+        - cdh3::hadoop::tasktracker
       
     - id: vagrant2
-      hostname: node2
+      hostname: mail
       os_arch: x86
       os_family: ubuntu
       os_description: ubuntu
@@ -23,3 +26,6 @@ nodes:
       credential: vagrant
       #credential_url: file:///home/jacke/.vagrant.d/insecure_private_key
       sudo_password: vagrant
+      tags:
+        - cdh3::hadoop::namenode
+        - cdh3::hadoop::jobtracker

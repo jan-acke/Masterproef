@@ -7,10 +7,10 @@ general:
 
 instances:
   - hardware:  m1.large
-    templates: puppetmaster
+    roles: puppetmaster
     number: 1
     hostname: node1
   - hardware: m1.small
-    templates: 
+    roles: blbalba
     number: 1
     hostname: node2
