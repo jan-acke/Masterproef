@@ -4,10 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
+import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.NodeMetadataBuilder;
 import org.jclouds.io.Payloads;
 import org.jclouds.scriptbuilder.ScriptBuilder;
 import org.jclouds.scriptbuilder.domain.Statements;
@@ -50,7 +53,7 @@ public class App
 			//install puppet and puppet.conf on all the nodes
 			Collection<String> lines = new ArrayList<String>();
 			lines.add("[master]");
-			lines.add("modulepath = /vagrant/mytests/Masterproef/puppet/modules");
+			//lines.add("modulepath = /vagrant/mytests/Masterproef/puppet/modules");
 			lines.add("[main]");
 			lines.add("logdir = /var/lib/puppet/log");
 			lines.add("vardir = /var/lib/puppet");
@@ -59,7 +62,7 @@ public class App
 			lines.add("rundir = /var/run/puppet");
 			lines.add("pluginsync = true");
 			
-			
+			System.out.println("Installing necessary components for puppet");
 			ScriptBuilder sb = new ScriptBuilder();
 			sb.addStatement(Statements.exec("apt-get install -y rubygems"));
 			sb.addStatement(Statements.exec("apt-get install -y tar"));
@@ -67,7 +70,7 @@ public class App
 			sb.addStatement(Statements.exec("groupadd puppet"));
 			sb.addStatement(Statements.exec("useradd -g puppet -G admin puppet"));
 			sb.addStatement(Statements.exec("export PATH=$PATH:/opt/ruby/bin")); //puppet in PATH
-			sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet.conf", lines));
+			sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet/puppet.conf", lines));
 			
 			context.getComputeService().runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue(), sb);
 			
@@ -81,17 +84,18 @@ public class App
 			
 			ScriptBuilder master = new ScriptBuilder();
 			master.addStatement(Statements.exec("mkdir -p /etc/puppet/manifests"));
-			master.addStatement(Statements.exec("tar xzf /tmp/modules.tgz -C /etc/puppet"));
 			master.addStatement(Statements.createOrOverwriteFile("/etc/puppet/manifests/site.pp", ManifestBuilder.createPuppetManifests(nodes)));
 			master.addStatement(Statements.createOrOverwriteFile("/etc/puppet/autosign.conf", Arrays.asList("*") ));
 			context.getComputeService().runScriptOnNode( pm.getId() , master);
+						
+			SshClient ssh = context.utils().sshForNode().apply(NodeMetadataBuilder.fromNodeMetadata(pm).build());
 			
-			SshClient ssh = context.utils().sshForNode().apply(pm);
 			try {
 				ssh.connect();
 				ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/modules.tgz")));
-				ssh.exec("puppet master");
-				ssh.exec("echo 'certname = '" + pm.getHostname() + "| tee -a /etc/puppet/puppet.conf"); //must be in the main section of the puppet master only 
+				System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
+				System.out.println(ssh.exec("sudo /opt/ruby/bin/puppet master"));
+				System.out.println(ssh.exec("echo 'certname = '" + pm.getHostname() + "| sudo tee -a /etc/puppet/puppet.conf")); //must be in the main section of the puppet master only 
 			}
 			finally {
 				if (ssh != null)
@@ -99,15 +103,22 @@ public class App
 			}
 			
 			System.out.println("Starting puppet agents");
-			context.getComputeService().runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue(), Statements.exec("puppet agent --server" + pm.getHostname()));
+			Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
+					.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
+								, Statements.exec("/opt/ruby/bin/puppet agent --server " + pm.getHostname()));
+			for ( NodeMetadata entry : resp3.keySet()) {
+				System.out.println(entry.getHostname() + " ---> " + resp3.get(entry));
+				
+			}
 						
 			
 			context.close();
 			
 			
-		}
+		} //if byon
 			
 	}
+	
     public static void main( String[] args ) throws Exception {
     	new App(args[0]);
     }

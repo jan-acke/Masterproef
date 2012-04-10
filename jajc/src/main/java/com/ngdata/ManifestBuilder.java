@@ -10,10 +10,11 @@ public class ManifestBuilder {
 	public static Iterable<String> createPuppetManifests(Iterable<NodeMetadata> instances) {
 		
 		Collection<String> lines = new ArrayList<String>();
+		lines.add("Exec  { path => [ '/bin' , '/sbin' , '/usr/bin' , '/usr/sbin' ] }");
 		for ( NodeMetadata nm : instances) {
 			lines.add("\n");
 			lines.add("node '" + nm.getHostname() + "' {");
-			StringBuilder sb = new StringBuilder(50);
+			StringBuilder sb = new StringBuilder(100);
 			for ( String tag : nm.getTags())
 				sb.append(tag).append(",");
 			sb.deleteCharAt(sb.length()-1);
