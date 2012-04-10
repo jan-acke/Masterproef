@@ -1,27 +1,21 @@
 package com.ngdata.bo;
 
-import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
 public class Instance {
 	
-	private String hostname;
+	private List<String> hostnames;
+	private Map<String,String> options;
 	private Set<String> roles;
 		
-	public Instance(String hostname) {
-		this.setHostname(hostname);
-		roles = new HashSet<String>();
+	public Instance() {
+		//roles = new HashSet<String>();
+		
 	}
-
-	public String getHostname() {
-		return hostname;
-	}
-
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
-
+	
 	public Set<String> getRoles() {
 		return roles;
 	}
@@ -41,6 +35,22 @@ public class Instance {
 			roles.add(rolename);
 			Roles.addInstance(rolename, this);
 		}
+	}
+
+	public List<String> getHostnames() {
+		return hostnames;
+	}
+
+	public void setHostnames(List<String> hostnames) {
+		this.hostnames = hostnames;
+	}
+
+	public Map<String,String> getOptions() {
+		return options;
+	}
+
+	public void setOptions(Map<String,String> options) {
+		this.options = options;
 	}
 	
 }

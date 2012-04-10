@@ -3,14 +3,44 @@
 
 general:
   provider: byon
-  cluster_name: jajc_test
+  clustername: jajc_test
+
+providerSpecificInfo:
+  #requires roles in instances, settings here can be overridden in instances
+  awsec2:
+    hardware: m1.large
+    image: ami-da0cf8b3
+    location: us-east-1
+
+  #requires roles and hostnames in instances, settings here can be overridden in instances
+  byon:
+    os_arch: x86
+    os_family: ubuntu
+    os_description: ubuntu
+    os_version: '10.10'
+    username: vagrant
+    credential: vagrant #can also be RSA key
+    # OR
+    #credential_url: <path-to-file>
+    sudo_password: vagrant
+
 
 instances:
-  - hardware:  m1.large
-    roles: puppetmaster
-    number: 1
-    hostname: node1
-  - hardware: m1.small
-    roles: blbalba
-    number: 1
-    hostname: node2
+  - options:  
+      hardware: m1.large
+      number: '2'
+    roles: 
+      - puppetmaster
+      - cdh3::hadoop::datanode
+      - cdh3::hadoop::tasktracker
+    hostnames: 
+      - puppet
+
+  - options:
+      number: '1'
+      hardware: m1.small
+    roles: 
+      - cdh3::hadoop::namenode
+      - cdh3::hadoop::jobtracker
+    hostnames: 
+      - mail
