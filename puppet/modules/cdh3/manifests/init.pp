@@ -1,16 +1,16 @@
 
-class cdh3::environment {
+class cdh3 {
   #core-site.xml
-  $cdh3_namenode = "hdfs://mail.outernet:8020"
+  $namenode = "hdfs://mail.outernet:8020"
 
   #hdfs-site.xml
-  $cdh3_dfs_permissions = "false"
-  $cdh3_dfs_name_dir = "/data/nn"
-  $cdh3_dfs_data_dir = "/data/dn"
+  $dfs_permissions = "false"
+  $dfs_name_dir = "/data/nn"
+  $dfs_data_dir = "/data/dn"
 
   #mapred-site.xml
-  $cdh3_mapred_job_tracker = "mail.outernet:54311"
-  $cdh3_mapred_local_dir = "/data/mapred/local" 
+  $mapred_job_tracker = "mail.outernet:54311"
+  $mapred_local_dir = "/data/mapred/local" 
 }
 
 class cdh3::repository {
