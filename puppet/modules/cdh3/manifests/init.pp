@@ -11,15 +11,16 @@ class cdh3 {
   #mapred-site.xml
   $mapred_job_tracker = "mail.outernet:54311"
   $mapred_local_dir = "/data/mapred/local"
+  $mapred_system_dir = "/mapred/system"
 
   #hbase-site.xml & zoo.cfg
-  $hbase_zookeeper_quorum =  [ "mail" , "puppet" , "web"]
+  $hbase_zookeeper_quorum =  [  "puppet", "mail" , "web"]
 }
 
 class cdh3::repository {
   include apt
   
-  apt::key {"cloudera":
+  apt::key {"Cloudera":
       source  => "http://archive.cloudera.com/debian/archive.key",
     }
   

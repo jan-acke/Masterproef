@@ -12,7 +12,7 @@ class cdh3::hadoop {
   $dfs_data_dir = $cdh3::dfs_data_dir
   $mapred_job_tracker = $cdh3::mapred_job_tracker
   $mapred_local_dir = $cdh3::mapred_local_dir
-  
+  $mapred_system_dir = $cdh3::mapred_system_dir
   package { "hadoop-0.20":
     ensure => latest,
     
@@ -89,11 +89,11 @@ class cdh3::hadoop::namenode {
   }
 
   #Interactive command :S
-  exec { "yes Y | hadoop-0.20 namenode -format":
+  exec { "format_namenode":
     onlyif => "test ! -e ${cdh3::dfs_name_dir}/current/VERSION",
+    command => "yes Y | hadoop-0.20 namenode -format",
     user => "hdfs",
     require => Package["hadoop-0.20-namenode"],
-    logoutput => true,
   }
 }
 
@@ -105,12 +105,37 @@ class cdh3::hadoop::namenode::service {
   }
 }
 
+class cdh3::hadoop::namenode::postinstall {
+  require cdh3::hadoop::namenode::service
+  exec { "hadoop fs -mkdir /tmp && hadoop fs -chmod 1777 /tmp":
+    user => hdfs,
+    subscribe => Exec["format_namenode"],
+    refreshonly => true,
+  }
+
+  exec { "hadoop fs -mkdir $cdh3::mapred_system_dir && hadoop fs -chown mapred:hadoop /mapred/system":
+    refreshonly => true,
+    user => hdfs,
+    subscribe => Exec["format_namenode"],
+  }
+}
+
+
 class cdh3::hadoop::datanode {
   require cdh3::hadoop
   package { "hadoop-0.20-datanode":
     ensure => latest,
   }
 }
+
+class cdh3::hadoop::datanode::service {
+  require cdh3::hadoop::datanode
+  service { "hadoop-0.20-datanode":
+    ensure => running,
+    hasrestart => true,
+  }
+}
+
 
 class cdh3::hadoop::secondarynamenode {
   require cdh3::hadoop

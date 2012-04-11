@@ -34,6 +34,20 @@ class cdh3::hbase::master {
   package { "hadoop-hbase-master":
     ensure => latest,
   }
+
+  exec { "hadoop fs -mkdir /hbase && hadoop fs -chown hbase /hbase":
+    user => hdfs,
+    refreshonly => true,
+    subscribe => Exec["format_namenode"],
+  }
+}
+
+class cdh3::hbase::master::service {
+  require cdh3::hbase::master
+  service { "hadoop-hbase-master":
+    ensure => running,
+    hasrestart => true,
+  }
 }
 
 class cdh3::hbase::regionserver {
@@ -41,5 +55,13 @@ class cdh3::hbase::regionserver {
 
   package { "hadoop-hbase-regionserver":
     ensure => latest,
+  }
+}
+
+class cdh3::hbase::regionserver::service {
+  require cdh3::hbase::regionserver
+  service { "hadoop-hbase-regionserver":
+    ensure => running,
+    hasrestart => true,
   }
 }
