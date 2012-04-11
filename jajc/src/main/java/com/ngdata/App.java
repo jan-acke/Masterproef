@@ -95,7 +95,7 @@ public class App
 		sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet/puppet.conf", lines));
 		
 		System.out.println("Installing necessary components for puppet");
-		//ec2 test
+		//om ec2 te doen werken moet hier de Pr ingesteld worden, lukt NIET door bij het Template dit in te stellen
 		//context.getComputeService().runScriptOnNode(debug.getId(), sb, RunScriptOptions.Builder.overrideLoginPrivateKey(config.getProviderSpecificInfo("awsec2").get("private_key")));
 		
 		context.getComputeService().runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue(), sb);
@@ -119,24 +119,24 @@ public class App
 		try {
 			ssh.connect();
 			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/zever")));
-			//System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
-			//System.out.println(ssh.exec("sudo /opt/ruby/bin/puppet master"));
-			//System.out.println(ssh.exec("echo 'certname = '" + pm.getHostname() + "| sudo tee -a /etc/puppet/puppet.conf")); //must be in the main section of the puppet master only 
+			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
+			System.out.println(ssh.exec("sudo /opt/ruby/bin/puppet master"));
+			System.out.println(ssh.exec("echo 'certname = '" + pm.getHostname() + "| sudo tee -a /etc/puppet/puppet.conf")); //must be in the main section of the puppet master only 
 		}
 		finally {
 			if (ssh != null)
 				ssh.disconnect();
 		}
 		
-//		System.out.println("Starting puppet agents");
-//		Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
-//				.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
-//							, Statements.exec("/opt/ruby/bin/puppet agent --server " + pm.getHostname()));
-//		for ( NodeMetadata entry : resp3.keySet()) {
-//			System.out.println(entry.getHostname() + " ---> " + resp3.get(entry));
-//			
-//		}
-//		
+		System.out.println("Starting puppet agents");
+		Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
+				.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
+							, Statements.exec("/opt/ruby/bin/puppet agent --server " + pm.getHostname()));
+		for ( NodeMetadata entry : resp3.keySet()) {
+			System.out.println(entry.getHostname() + " ---> " + resp3.get(entry));
+			
+		}
+		
 		context.close();
 			
 	}
@@ -205,7 +205,7 @@ public class App
         	
     		for (String hostname : i.getHostnames()) {
     			yaml.append("\n    - id: ").append(hostname);
-    			yaml.append("\n      name: ").append(hostname);
+    			//yaml.append("\n      name: ").append(hostname);
     			yaml.append("\n      hostname: ").append(hostname);
     			yaml.append("\n      os_arch: ").append(os_arch);
     			yaml.append("\n      os_family: ").append(os_family);
@@ -226,7 +226,7 @@ public class App
     	}
 
 		//byonProps.setProperty("byon.endpoint", "file:///home/jacke/Documents/eindwerk/Masterproef/jajc/nodes-byon.yml");
-    	System.out.println(yaml);
+    	//System.out.println(yaml);
     	byonProps.setProperty("byon.nodes", yaml.toString());
     	context = new ComputeServiceContextFactory().createContext("byon","foo","bar",
 				ImmutableSet.<Module> of (new SshjSshClientModule() ) , byonProps);
@@ -243,7 +243,7 @@ public class App
     	String value;
     	try {
     		value = higherPriority.get(key) == null ? lowerPriority.get(key) : higherPriority.get(key);
-    		//ugly hack because we only want to deal with strings
+    		//ugly hack because we only want to deal with strings TODO reevaluate
     	} catch (ClassCastException ex){
     		value = "" + higherPriority.get(key) == null ? lowerPriority.get(key) : higherPriority.get(key);
     	}
