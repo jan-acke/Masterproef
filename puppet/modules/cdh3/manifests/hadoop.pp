@@ -90,6 +90,7 @@ class cdh3::hadoop::namenode {
 
   #Interactive command :S
   exec { "yes Y | hadoop-0.20 namenode -format":
+    onlyif => "test ! -e ${cdh3::dfs_name_dir}/current/VERSION",
     user => "hdfs",
     require => Package["hadoop-0.20-namenode"],
     logoutput => true,
