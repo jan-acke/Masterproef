@@ -3,15 +3,17 @@ class cdh3::zookeeper {
   require java
   require cdh3::repository
   include cdh3::zookeeper::install,cdh3::zookeeper::service
-
+  
 }
 
 class cdh3::zookeeper::install {
+  $hbase_zookeeper_quorum = $cdh3::hbase_zookeeper_quorum
+  
   package { "hadoop-zookeeper-server":
     ensure => latest,
     require => Class["cdh3::zookeeper"],
   }
-
+  
   file { "/var/zookeeper":
     ensure => directory,
     owner => root,
@@ -27,7 +29,7 @@ class cdh3::zookeeper::install {
   }
 
   file { "/etc/zookeeper/zoo.cfg":
-    source => "puppet:///modules/cdh3/zoo.cfg",
+    content => template("cdh3/zookeeper/zoo.cfg.erb"),
     owner => root,
     group => root,
     require => Package["hadoop-zookeeper-server"],
