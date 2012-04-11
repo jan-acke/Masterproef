@@ -5,12 +5,7 @@
 
 <configuration>
   <property>
-    <name>mapred.job.tracker</name>
-    <value>mail.outernet</value>
-  </property>
-
-  <property>
-    <name>mapred.local.dir</name>
-    <value>/data/mapred/local</value>
+    <name>fs.default.name</name>
+    <value><%= cdh3_namenode %></value>
   </property>
 </configuration>

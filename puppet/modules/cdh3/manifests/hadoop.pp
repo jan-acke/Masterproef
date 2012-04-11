@@ -8,7 +8,7 @@ class cdh3::hadoop {
     
   }
   
-  file { ["/data","/data/nn","/data/dn"]:
+  file { $cdh3_dfs_data_dir :
     ensure => directory,
     owner => hdfs,
     group => hadoop,
@@ -16,7 +16,7 @@ class cdh3::hadoop {
     require => Package["hadoop-0.20"],
   }
 
-  file { ["/data/mapred","/data/mapred/local" ]:
+  file { $cdh3_mapred_local_dir :
     ensure => directory,
     owner => mapred,
     group => hadoop,
@@ -25,6 +25,7 @@ class cdh3::hadoop {
   }
 
   $location = "/etc/hadoop-0.20/conf.mine"
+
   file { $location :
     ensure => directory,
     require => Package["hadoop-0.20"],
@@ -34,6 +35,31 @@ class cdh3::hadoop {
     recurse => true,
   }
 
+  file { "/etc/hadoop-0.20/hdfs-site.xml":
+    ensure => exists,
+    owner => root,
+    group => root,
+    require => File[ $location ],
+    content => template("conf.mine/hdfs-site.xml.erb")
+  }
+
+  file { $location"/core-site.xml":
+    ensure => exists,
+    owner => root,
+    group => root,
+    require => File[ $location ],
+    content => template("conf.mine/core-site.xml.erb")
+  }
+
+  file { $location"/mapred-site.xml":
+    ensure => exists,
+    owner => root,
+    group => root,
+    require => File[ $location ],
+    content => template("conf.mine/mapred-site.xml.erb")
+  }
+  
+  
   exec { "update-alternatives":
     subscribe => File[$location],
     command => "update-alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /etc/hadoop-0.20/conf.mine/ 50",

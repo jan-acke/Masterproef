@@ -5,7 +5,12 @@
 
 <configuration>
   <property>
-    <name>fs.default.name</name>
-    <value>hdfs://mail.outernet:8020</value>
+    <name>mapred.job.tracker</name>
+    <value><%= cdh3_mapred_job_tracker %></value>
+  </property>
+
+  <property>
+    <name>mapred.local.dir</name>
+    <value><%= cdh3_mapred_local_dir %></value>
   </property>
 </configuration>
