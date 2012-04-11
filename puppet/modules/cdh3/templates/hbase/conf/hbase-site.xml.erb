@@ -28,12 +28,12 @@
 </property>
 <property>
   <name>hbase.rootdir</name>
-  <value>hdfs://mail.outernet/hbase</value>
+  <value><%= namenode + "/hbase" %></value>
 </property>
 
 <property>
   <name>hbase.zookeeper.quorum</name>
-  <value>web.outernet,mail.outernet,puppet.outernet</value>
+  <value><%= hbase_zookeeper_quorum.join(",")%></value>
 </property>
 
 </configuration>

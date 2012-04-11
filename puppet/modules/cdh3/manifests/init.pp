@@ -10,7 +10,10 @@ class cdh3 {
 
   #mapred-site.xml
   $mapred_job_tracker = "mail.outernet:54311"
-  $mapred_local_dir = "/data/mapred/local" 
+  $mapred_local_dir = "/data/mapred/local"
+
+  #hbase-site.xml & zoo.cfg
+  $hbase_zookeeper_quorum =  [ "mail" , "puppet" , "web"]
 }
 
 class cdh3::repository {

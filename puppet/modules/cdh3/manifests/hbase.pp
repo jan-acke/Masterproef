@@ -2,6 +2,11 @@
 class cdh3::hbase {
   require cdh3::hadoop
   require cdh3::zookeeper
+
+  #declaring classified variables as local variables for template usage since templates don't know classified variables and
+  #we don't want to use scope.lookupvar("varname") for every variable
+  $namenode = $cdh3::namenode
+  $hbase_zookeeper_quorum = $cdh3::hbase_zookeeper_quorum
   
   package { "hadoop-hbase":
     ensure => latest,
@@ -12,6 +17,13 @@ class cdh3::hbase {
     group => root,
     source => "puppet:///modules/cdh3/hbase/conf",
     recurse => true,
+    require => Package["hadoop-hbase"],
+  }
+
+  file { "/etc/hbase/conf/hbase-site.xml":
+    owner => root,
+    group => root,
+    content => template("cdh3/hbase/conf/hbase-site.xml.erb"),
     require => Package["hadoop-hbase"],
   }
 }
