@@ -153,10 +153,29 @@ class cdh3::hadoop::jobtracker {
 }
 
 
+class cdh3::hadoop::jobtracker::service {
+  require cdh3::hadoop::jobtracker
+
+  service { "hadoop-0.20-jobtracker":
+    ensure => running,
+    hasrestart => true,
+  }
+}
+
+
 class cdh3::hadoop::tasktracker {
   require cdh3::hadoop
 
   package { "hadoop-0.20-tasktracker":
     ensure => latest,
+  }
+}
+
+
+class cdh3::hadoop::tasktracker::service {
+  require cdh3::hadoop::tasktracker
+
+  service { "hadoop-0.20-tasktracker":
+    ensure => running,
   }
 }

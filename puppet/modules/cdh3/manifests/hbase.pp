@@ -44,9 +44,13 @@ class cdh3::hbase::master {
 
 class cdh3::hbase::master::service {
   require cdh3::hbase::master
+  require cdh3::hadoop::jobtracker::service
+  require cdh3::hadoop::namemode::service
+  require cdh3::zookeeper::service
   service { "hadoop-hbase-master":
     ensure => running,
     hasrestart => true,
+    require => Service["hadoop-0.20-namenode"]
   }
 }
 
