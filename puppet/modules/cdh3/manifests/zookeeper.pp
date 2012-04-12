@@ -2,30 +2,31 @@
 class cdh3::zookeeper {
   require java
   require cdh3::repository
-  include cdh3::zookeeper::install,cdh3::zookeeper::service
+  include cdh3::zookeeper::install #,cdh3::zookeeper::service
   
 }
 
 class cdh3::zookeeper::install {
-  $hbase_zookeeper_quorum = $cdh3::hbase_zookeeper_quorum
+  $zookeeper = $cdh3::zookeeper
   
   package { "hadoop-zookeeper-server":
     ensure => latest,
     require => Class["cdh3::zookeeper"],
   }
   
-  file { "/var/zookeeper":
+  file { "zk.dataDir":
+    path => "${cdh3::zookeeper['dataDir']}",
     ensure => directory,
     owner => root,
     group => root,
     require => Package["hadoop-zookeeper-server"],
   }
 
-  file { "/var/zookeeper/myid":
+  file { "${cdh3::zookeeper['dataDir']}/myid":
     content => $zooid,
     owner => root,
     group => root,
-    require => File["/var/zookeeper"]
+    require => File["zk.dataDir"],
   }
 
   file { "/etc/zookeeper/zoo.cfg":
@@ -37,9 +38,10 @@ class cdh3::zookeeper::install {
 }
 
 class cdh3::zookeeper::service {
-  
-  exec { "start-zk":
-    command => "/usr/lib/zookeeper/bin/zkServer.sh start",
+
+  service { "hadoop-zookeeper-server":
+    ensure => running,
     require => Class["cdh3::zookeeper::install"],
-  }
+
+  }  
 }

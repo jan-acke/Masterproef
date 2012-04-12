@@ -5,19 +5,11 @@
 
 <configuration>
 
+<% hdfs.each do |name,value| -%>
   <property>
-    <name>dfs.permissions</name>
-    <value><%= dfs_permissions %></value>
+    <name><%= name %></name>
+    <value><%= value %></value>
   </property>
 
-  <property>
-    <name>dfs.name.dir</name>
-    <value><%= dfs_name_dir %></value>
-  </property>
-
-  <property>
-    <name>dfs.data.dir</name>
-    <value><%= dfs_data_dir %></value>
-  </property>
-
+<% end -%>
 </configuration>

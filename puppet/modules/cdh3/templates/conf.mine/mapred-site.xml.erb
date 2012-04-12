@@ -4,19 +4,13 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
-  <property>
-    <name>mapred.job.tracker</name>
-    <value><%= mapred_job_tracker %></value>
-  </property>
 
+<% mapred.each do |name,value| -%>
   <property>
-    <name>mapred.local.dir</name>
-    <value><%= mapred_local_dir %></value>
+    <name><%= name %></name>
+    <value><%= value %></value>
   </property>
+<% end -%>
 
-  <property>
-    <name>mapred.system.dir</name>
-    <value><%= mapred_system_dir %></value>
-  </property>
 
 </configuration>

@@ -6,13 +6,10 @@ class cdh3::hadoop {
 
   #declaring classified variables as local variables for template usage since templates don't know classified variables and
   #we don't want to use scope.lookupvar("varname") for every variable
-  $namenode = $cdh3::namenode
-  $dfs_permissions = $cdh3::permissions
-  $dfs_name_dir = $cdh3::dfs_name_dir
-  $dfs_data_dir = $cdh3::dfs_data_dir
-  $mapred_job_tracker = $cdh3::mapred_job_tracker
-  $mapred_local_dir = $cdh3::mapred_local_dir
-  $mapred_system_dir = $cdh3::mapred_system_dir
+  $hdfs = $cdh3::hdfs
+  $mapred = $cdh3::mapred
+  $core = $cdh3::core
+  
   package { "hadoop-0.20":
     ensure => latest,
     
@@ -21,11 +18,11 @@ class cdh3::hadoop {
   #mkdir -p in puppet is not possible and manuallly splitting and creating a variable string with the necessary directories
   #seems a bit far fetched eg [ "/data" , "/data/subdir" , "/data/subdir/dfsdata" , "/data/subdir/dfsnamedir"]
   exec { "create_directories":
-    command => "mkdir -p $cdh3::dfs_data_dir $cdh3::dfs_name_dir $cdh3::mapred_local_dir",
+    command => "mkdir -p ${cdh3::hdfs['dfs.data.dir']} ${cdh3::hdfs['dfs.name.dir']} ${cdh3::mapred['mapred.local.dir']}",
     require => Package["hadoop-0.20"],
   }
 
-  file { [ $cdh3::dfs_data_dir , $cdh3::dfs_name_dir ] :
+  file { [ $cdh3::hdfs['dfs.data.dir'] , $cdh3::hdfs['dfs.name.dir'] ] :
     ensure => directory,
     owner => hdfs,
     group => hadoop,
@@ -33,7 +30,7 @@ class cdh3::hadoop {
     require => Exec["create_directories"],
   }
 
-  file { $cdh3::mapred_local_dir :
+  file { $cdh3::mapred['mapred.local.dir'] :
     ensure => directory,
     owner => mapred,
     group => hadoop,
@@ -90,7 +87,7 @@ class cdh3::hadoop::namenode {
 
   #Interactive command :S
   exec { "format_namenode":
-    onlyif => "test ! -e ${cdh3::dfs_name_dir}/current/VERSION",
+    onlyif => "test ! -e ${cdh3::hdfs['dfs.name.dir']}/current/VERSION",
     command => "yes Y | hadoop-0.20 namenode -format",
     user => "hdfs",
     require => Package["hadoop-0.20-namenode"],
@@ -113,7 +110,7 @@ class cdh3::hadoop::namenode::postinstall {
     refreshonly => true,
   }
 
-  exec { "hadoop fs -mkdir $cdh3::mapred_system_dir && hadoop fs -chown mapred:hadoop /mapred/system":
+  exec { "hadoop fs -mkdir ${cdh3::mapred['mapred.system.dir']} && hadoop fs -chown mapred:hadoop ${cdh3::mapred['mapred.system.dir']}":
     refreshonly => true,
     user => hdfs,
     subscribe => Exec["format_namenode"],
@@ -159,6 +156,7 @@ class cdh3::hadoop::jobtracker::service {
   service { "hadoop-0.20-jobtracker":
     ensure => running,
     hasrestart => true,
+    require => Service["hadoop-0.20-namenode"]
   }
 }
 

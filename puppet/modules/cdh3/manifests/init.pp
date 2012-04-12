@@ -1,20 +1,42 @@
 
 class cdh3 {
-  #core-site.xml
+
+  #variables used in different configs
   $namenode = "hdfs://mail.outernet:8020"
+  $zk_quorum =  [  "puppet", "mail" , "web" ]
 
-  #hdfs-site.xml
-  $dfs_permissions = "false"
-  $dfs_name_dir = "/data/nn"
-  $dfs_data_dir = "/data/dn"
+  #hashes contstrueren
+  $hdfs = {
+    "dfs.permissions" => "false",
+    "dfs.name.dir" => "/data/nn",
+    "dfs.data.dir" => "/data/dn"
+  }
 
-  #mapred-site.xml
-  $mapred_job_tracker = "mail.outernet:54311"
-  $mapred_local_dir = "/data/mapred/local"
-  $mapred_system_dir = "/mapred/system"
+  $mapred = {
+    "mapred.job.tracker" => "mail.outernet:54311",
+    "mapred.local.dir"   => "/data/mapred/local",
+    "mapred.system.dir"  => "/mapred/system"
+  }
 
-  #hbase-site.xml & zoo.cfg
-  $hbase_zookeeper_quorum =  [  "puppet", "mail" , "web"]
+  $core = {
+    "fs.default.name" => $namenode
+  }
+
+  $zookeeper = {
+    "ticktime" => "2000",
+    "dataDir"  => "/var/zookeeper",
+    "clientPort" => "2181",
+    "initLimit" => "5",
+    "syncLimit" => "2",
+    "servers" => $zk_quorum
+  }
+
+  $hbase = {
+    "hbase.cluster.distributed" => "true",
+    "hbase.rootdir" => "${namemode}/hbase",
+    "hbase.zookeeper.quorum" => $zk_quorum
+  }
+  
 }
 
 class cdh3::repository {

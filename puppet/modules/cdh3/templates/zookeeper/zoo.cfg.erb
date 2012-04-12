@@ -1,9 +1,9 @@
 
-tickTime=2000
-dataDir=/var/zookeeper/
-clientPort=2181
-initLimit=5
-syncLimit=2
-<% hbase_zookeeper_quorum.each_with_index do |server,index| -%>
+<% zookeeper.each do |name,value| -%>
+<% if name == "servers" %><% zookeeper[name].each_with_index do |server,index| -%>
 server.<%= index + 1 %>=<%= server %>:2888:3888
 <% end -%>
+<% else %><%= name %>=<%= value %>
+<% end -%>
+<% end -%>
+

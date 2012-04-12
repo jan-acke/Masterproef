@@ -4,8 +4,13 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
+
+<% core.each do |name,value| -%>
   <property>
-    <name>fs.default.name</name>
-    <value><%= namenode %></value>
+    <name><%= name %></name>
+    <value><%= value %></value>
   </property>
+
+<% end -%>
+  
 </configuration>

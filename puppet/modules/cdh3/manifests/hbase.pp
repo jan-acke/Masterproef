@@ -5,8 +5,7 @@ class cdh3::hbase {
 
   #declaring classified variables as local variables for template usage since templates don't know classified variables and
   #we don't want to use scope.lookupvar("varname") for every variable
-  $namenode = $cdh3::namenode
-  $hbase_zookeeper_quorum = $cdh3::hbase_zookeeper_quorum
+  $hbase = $cdh3::hbase
   
   package { "hadoop-hbase":
     ensure => latest,
@@ -45,7 +44,6 @@ class cdh3::hbase::master {
 class cdh3::hbase::master::service {
   require cdh3::hbase::master
   require cdh3::hadoop::jobtracker::service
-  require cdh3::hadoop::namemode::service
   require cdh3::zookeeper::service
   service { "hadoop-hbase-master":
     ensure => running,
