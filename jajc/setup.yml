@@ -28,7 +28,7 @@ providerSpecificInfo:
 instances:
   - options:  
       hardware: m1.large
-      number: '2'
+      number: '1'
     roles: 
       - puppetmaster
       - cdh3::hadoop::datanode
@@ -44,3 +44,4 @@ instances:
       - cdh3::hadoop::jobtracker
     hostnames: 
       - mail
+      

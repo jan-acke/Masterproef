@@ -42,13 +42,13 @@ import com.ngdata.exception.JaJcLogicalConfigException;
  *
  */
 
-public class App 
+public class Main 
 {	
 	
 	private ComputeServiceContext context;
 	
 	
-	public App(String configFileName) throws Exception {
+	public Main(String configFileName) throws Exception {
 		IConfig config = YamlConfigReader.createYAMLConfig(configFileName);
 		Iterable<NodeMetadata> nodes = null;
 		if (config.getInstances().size() == 0)
@@ -66,6 +66,10 @@ public class App
 			nodes = createAwsec2Context(config);
 		}
 		
+		NodeMetadata pm = Iterables.filter(nodes,new Predicate<NodeMetadata>() {
+			@Override public boolean apply(NodeMetadata nd) {
+				return nd.getTags().contains("puppetmaster");
+			} } ).iterator().next();
 		
 		NodeMetadata debug = nodes.iterator().next();
 		System.out.println("Username : " + debug.getCredentials().getUser());
@@ -75,6 +79,7 @@ public class App
 		//install puppet and puppet.conf on all the nodes
 		Collection<String> lines = new ArrayList<String>();
 		lines.add("[master]");
+		lines.add("certname=" + pm.getHostname());
 		//lines.add("modulepath = /vagrant/mytests/Masterproef/puppet/modules");
 		lines.add("[main]");
 		lines.add("logdir = /var/lib/puppet/log");
@@ -103,10 +108,7 @@ public class App
 		System.out.println("Configuring puppet master");
 		
 		//Placing puppet modules in puppetmaster and generate manifest
-		NodeMetadata pm = Iterables.filter(nodes,new Predicate<NodeMetadata>() {
-			@Override public boolean apply(NodeMetadata nd) {
-				return nd.getTags().contains("puppetmaster");
-			} } ).iterator().next();
+		
 		
 		ScriptBuilder master = new ScriptBuilder();
 		master.addStatement(Statements.exec("mkdir -p /etc/puppet/manifests"));
@@ -118,10 +120,10 @@ public class App
 		
 		try {
 			ssh.connect();
-			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/zever")));
+			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/modules.tgz")));
 			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
 			System.out.println(ssh.exec("sudo /opt/ruby/bin/puppet master"));
-			System.out.println(ssh.exec("echo 'certname = '" + pm.getHostname() + "| sudo tee -a /etc/puppet/puppet.conf")); //must be in the main section of the puppet master only 
+			//System.out.println(ssh.exec("echo 'certname = '" + pm.getHostname() + "| sudo tee -a /etc/puppet/puppet.conf")`); //must be in the main section of the puppet master only 
 		}
 		finally {
 			if (ssh != null)
@@ -164,8 +166,8 @@ public class App
     		Template t = tb.hardwareId(hardware).imageId(location + "/" + image).build();
     		//t.getOptions().overrideLoginCredentials(new LoginCredentials("ubuntu", null, awsec2config.get("private_key"), false));
     		t.getOptions().overrideLoginPrivateKey(awsec2config.get("private_key"));
-    		t.getOptions().tags(i.getRoles());
-    		t.getOptions().as(AWSEC2TemplateOptions.class).securityGroups("evert-upgrade-3");
+    		t.getOptions().tags(i.getRoles())
+    				.as(AWSEC2TemplateOptions.class).securityGroups("evert-upgrade-3");
     		t.getOptions().as(AWSEC2TemplateOptions.class).keyPair("jacke");
     		templates.put(t,number);
     		
@@ -255,7 +257,7 @@ public class App
     }
 
 	public static void main( String[] args ) throws Exception {
-    	new App(args[0]);
+    	new Main(args[0]);
     }
     
     
