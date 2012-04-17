@@ -16,7 +16,8 @@ public class ManifestBuilder {
 			lines.add("node '" + nm.getHostname() + "' {");
 			StringBuilder sb = new StringBuilder(100);
 			for ( String tag : nm.getTags())
-				sb.append(tag).append(",");
+				if (!"puppetmaster".equals(tag))
+					sb.append(tag).append(",");
 			sb.deleteCharAt(sb.length()-1);
 			lines.add("include " + sb);
 			lines.add("}");

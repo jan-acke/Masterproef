@@ -7,7 +7,7 @@ class cdh3::zookeeper {
 }
 
 class cdh3::zookeeper::install {
-  $zookeeper = $cdh3::zookeeper
+  $zookeeper = $cdh3::environment::zookeeper
   
   package { "hadoop-zookeeper-server":
     ensure => latest,
@@ -15,14 +15,14 @@ class cdh3::zookeeper::install {
   }
   
   file { "zk.dataDir":
-    path => "${cdh3::zookeeper['dataDir']}",
+    path => "${cdh3::environment::zookeeper['dataDir']}",
     ensure => directory,
     owner => root,
     group => root,
     require => Package["hadoop-zookeeper-server"],
   }
 
-  file { "${cdh3::zookeeper['dataDir']}/myid":
+  file { "${cdh3::environment::zookeeper['dataDir']}/myid":
     content => $zooid,
     owner => root,
     group => root,

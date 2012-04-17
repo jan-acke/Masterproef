@@ -12,5 +12,6 @@ public interface IConfig {
 	public List<Instance> getInstances();
 	public General getGeneral();
 	public Map<String, String> getProviderSpecificInfo(String provider);
+	public Map<String, Map<String, String>> getUserConfig();
 
 }

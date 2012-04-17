@@ -11,6 +11,7 @@ public class YAMLConfig implements IConfig {
 	private General general;
 	private List<Instance> instances;
 	private Map<String,Map<String,String>> providerSpecificInfo;
+	private Map<String, Map<String, String>> userConfig;
 	
 	public YAMLConfig() {}
 	
@@ -39,6 +40,15 @@ public class YAMLConfig implements IConfig {
 	public Map<String, String> getProviderSpecificInfo(String provider) {
 		return providerSpecificInfo.get(provider);
 		
+	}
+
+	@Override
+	public Map<String, Map<String, String>> getUserConfig() {
+		return userConfig;
+	}
+
+	public void setUserConfig(Map<String, Map<String, String>> userConfig) {
+		this.userConfig = userConfig;
 	}
 
 	

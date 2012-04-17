@@ -9,6 +9,31 @@
 
   <name>jajc</name>
   <url>http://maven.apache.org</url>
+  
+  <build>
+    <plugins>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>	
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.ngdata.jajc.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+      	<groupId>org.codehaus.mojo</groupId>
+      	<artifactId>exec-maven-plugin</artifactId>
+      	<configuration>
+      		<mainClass>com.ngdata.Main</mainClass>
+      		
+      	</configuration>
+      	</plugin>
+    </plugins>
+  </build>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

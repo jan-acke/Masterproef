@@ -37,10 +37,6 @@ import com.ngdata.bo.Instance;
 import com.ngdata.bo.Roles;
 import com.ngdata.exception.JaJcLogicalConfigException;
 
-/**
- * Hello world!
- *
- */
 
 public class Main 
 {	
@@ -50,44 +46,43 @@ public class Main
 	
 	public Main(String configFileName) throws Exception {
 		IConfig config = YamlConfigReader.createYAMLConfig(configFileName);
-		Iterable<NodeMetadata> nodes = null;
+		
 		if (config.getInstances().size() == 0)
 			throw new JaJcLogicalConfigException("no instances defined in " + configFileName);
 		
 		if (Roles.getInstances("puppetmaster") == null || Roles.getInstances("puppetmaster").size() > 1 )
 			throw new JaJcLogicalConfigException("Need at least one puppetmaster" + configFileName);
 				
-		String provider = config.getGeneral().getProvider();
-		if ( "byon".equals(provider) ) {
-			nodes = createByonContext(config);
-		}
 		
-		else if ( "awsec2".equals(provider)) {
-			nodes = createAwsec2Context(config);
-		}
+		
+		
+		Provider provider = Provider.createProvider(config);
+		Iterable<NodeMetadata> nodes = provider.getNodes();
+		context = provider.getContext();
+		
+		//System.out.println(CDH3ConfigurationBuilder.createConfiguration(nodes, config));
 		
 		NodeMetadata pm = Iterables.filter(nodes,new Predicate<NodeMetadata>() {
 			@Override public boolean apply(NodeMetadata nd) {
 				return nd.getTags().contains("puppetmaster");
 			} } ).iterator().next();
 		
-		NodeMetadata debug = nodes.iterator().next();
-		System.out.println("Username : " + debug.getCredentials().getUser());
-		System.out.println("Password : " + debug.getCredentials().getPassword());
-		System.out.println("Pkey     : " + debug.getCredentials().getPrivateKey());
+//		NodeMetadata debug = nodes.iterator().next();
+//		System.out.println("Username : " + debug.getCredentials().getUser());
+//		System.out.println("Password : " + debug.getCredentials().getPassword());
+//		System.out.println("Pkey     : " + debug.getCredentials().getPrivateKey());
 		
 		//install puppet and puppet.conf on all the nodes
 		Collection<String> lines = new ArrayList<String>();
 		lines.add("[master]");
 		lines.add("certname=" + pm.getHostname());
-		//lines.add("modulepath = /vagrant/mytests/Masterproef/puppet/modules");
 		lines.add("[main]");
 		lines.add("logdir = /var/lib/puppet/log");
 		lines.add("vardir = /var/lib/puppet");
 		lines.add("factpath = $vardir/lib/facter");
 		lines.add("ssldir = /var/lib/puppet/ssl");
 		lines.add("rundir = /var/run/puppet");
-		lines.add("pluginsync = true");
+		lines.add("server = " + pm.getHostname());
 		
 		
 		ScriptBuilder sb = new ScriptBuilder();
@@ -122,7 +117,10 @@ public class Main
 			ssh.connect();
 			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/modules.tgz")));
 			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
+			ssh.put("/tmp/environment.pp",Payloads.newStringPayload(CDH3ConfigurationBuilder.createConfiguration(nodes, config)));
+			ssh.exec("sudo cp /tmp/environment.pp /etc/puppet/modules/cdh3/manifests/");
 			System.out.println(ssh.exec("sudo /opt/ruby/bin/puppet master"));
+			
 			//System.out.println(ssh.exec("echo 'certname = '" + pm.getHostname() + "| sudo tee -a /etc/puppet/puppet.conf")`); //must be in the main section of the puppet master only 
 		}
 		finally {
@@ -133,7 +131,7 @@ public class Main
 		System.out.println("Starting puppet agents");
 		Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
 				.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
-							, Statements.exec("/opt/ruby/bin/puppet agent --server " + pm.getHostname()));
+							, Statements.exec("/opt/ruby/bin/puppet agent"));
 		for ( NodeMetadata entry : resp3.keySet()) {
 			System.out.println(entry.getHostname() + " ---> " + resp3.get(entry));
 			
@@ -143,121 +141,10 @@ public class Main
 			
 	}
 	
-    private Iterable<NodeMetadata> createAwsec2Context(IConfig config) throws RunNodesException, JaJcLogicalConfigException {
-    	Map<String,String> awsec2config = config.getProviderSpecificInfo("awsec2");
-    	context =  new ComputeServiceContextFactory().
-            	createContext("aws-ec2",awsec2config.get("accesskeyid"), awsec2config.get("secretkey"),
-            			ImmutableSet.<Module> of(new SshjSshClientModule()));
-    	TemplateBuilder tb = context.getComputeService().templateBuilder();
-    	Map<Template,Integer> templates = new HashMap<Template,Integer>();
-    	for (Instance i : config.getInstances()){
-    		Map<String, String> options = i.getOptions();
-    		int number; 
-    		try {
-    			number = Integer.parseInt(options.get("number"));
-    		} catch (Exception ex) {
-    			System.out.println("Invalid or missing number value in configuration of instances, eg. number = '2'. Assuming 1 for now");
-    			number = 1;
-    		}
-    		String hardware = getValue(awsec2config, options, "hardware");
-    		String image = getValue(awsec2config, options, "image");
-    		String location = getValue(awsec2config,options,"location");
-    		
-    		Template t = tb.hardwareId(hardware).imageId(location + "/" + image).build();
-    		//t.getOptions().overrideLoginCredentials(new LoginCredentials("ubuntu", null, awsec2config.get("private_key"), false));
-    		t.getOptions().overrideLoginPrivateKey(awsec2config.get("private_key"));
-    		t.getOptions().tags(i.getRoles())
-    				.as(AWSEC2TemplateOptions.class).securityGroups("evert-upgrade-3");
-    		t.getOptions().as(AWSEC2TemplateOptions.class).keyPair("jacke");
-    		templates.put(t,number);
-    		
-    	}
-
-		Set<NodeMetadata> nodes = new HashSet<NodeMetadata>();
-    	for (Template template : templates.keySet()){
-    		 Set<? extends NodeMetadata> tmp = context.getComputeService().createNodesInGroup("jan-jclouds", templates.get(template), template);
-    		 nodes.addAll(tmp);
-    	}
-    	return nodes;
-		
-    }
-
-	@SuppressWarnings("unchecked")
-	private Iterable<NodeMetadata> createByonContext(IConfig config) throws JaJcLogicalConfigException {
-    	Properties byonProps = new Properties();
-    	Map<String,String> byonConfig = config.getProviderSpecificInfo("byon");
-    	
-    	StringBuilder yaml = new StringBuilder(); 
-    	yaml.append("nodes:");
-    	for ( Instance i : config.getInstances()) {
-    		Map<String,String> instanceConfig = i.getOptions();
-    		String os_arch = getValue(byonConfig, instanceConfig, "os_arch");
-    		String os_family = getValue(byonConfig, instanceConfig, "os_family");
-    		String os_description = getValue(byonConfig, instanceConfig, "os_description");
-    		String os_version = getValue(byonConfig,instanceConfig,"os_version");
-    		String username = getValue(byonConfig,instanceConfig,"username",true);
-    		String sudo_password = getValue(byonConfig,instanceConfig,"sudo_password",true);
-    		String credential = getValue(byonConfig,instanceConfig,"credential");
-    		String credential_url = getValue(byonConfig, instanceConfig, "credential_url");
-    		if (credential == "" && credential_url == "")
-    			throw new JaJcLogicalConfigException("Need one of these options : credential , credential_url");
-    		if ( i.getHostnames() == null || i.getHostnames().size() == 0)
-    			throw new JaJcLogicalConfigException("Hostnames are required for byon configuration");
-    		
-        	
-    		for (String hostname : i.getHostnames()) {
-    			yaml.append("\n    - id: ").append(hostname);
-    			//yaml.append("\n      name: ").append(hostname);
-    			yaml.append("\n      hostname: ").append(hostname);
-    			yaml.append("\n      os_arch: ").append(os_arch);
-    			yaml.append("\n      os_family: ").append(os_family);
-    			yaml.append("\n      os_description: ").append(os_description);
-    			yaml.append("\n      os_version: ").append(os_version);
-    			yaml.append("\n      group: ").append(config.getGeneral().getClustername());
-    			yaml.append("\n      username: ").append(username);
-    			yaml.append("\n      sudo_password: ").append(sudo_password);
-    			if (credential == null)
-    				yaml.append("\n      credential_url: file://").append(credential_url);
-    			else
-    				yaml.append("\n      credential: ").append(credential);
-    			yaml.append("\n      tags:");
-    			for (String role : i.getRoles())
-    				yaml.append("\n        - " + role);
-    			yaml.append("\n");
-    		}
-    	}
-
-		//byonProps.setProperty("byon.endpoint", "file:///home/jacke/Documents/eindwerk/Masterproef/jajc/nodes-byon.yml");
-    	//System.out.println(yaml);
-    	byonProps.setProperty("byon.nodes", yaml.toString());
-    	context = new ComputeServiceContextFactory().createContext("byon","foo","bar",
-				ImmutableSet.<Module> of (new SshjSshClientModule() ) , byonProps);
-    	return (Iterable<NodeMetadata>) context.getComputeService().listNodes();
-    	
-		
-	}
-    
-    private String getValue(Map<String,String> lowerPriority , Map<String,String> higherPriority, String key) throws JaJcLogicalConfigException {
-    	return getValue(lowerPriority, higherPriority, key,false);
-    }
-    
-    private String getValue (Map<String,String> lowerPriority , Map<String,String> higherPriority, String key, boolean required ) throws JaJcLogicalConfigException {
-    	String value;
-    	try {
-    		value = higherPriority.get(key) == null ? lowerPriority.get(key) : higherPriority.get(key);
-    		//ugly hack because we only want to deal with strings TODO reevaluate
-    	} catch (ClassCastException ex){
-    		value = "" + higherPriority.get(key) == null ? lowerPriority.get(key) : higherPriority.get(key);
-    	}
-    	if (value == null && required)
-    		throw new JaJcLogicalConfigException("Missing " + key + " option");
-    	else if (value == null)
-    		value = "";
-    	return value;
-    }
-
+	
 	public static void main( String[] args ) throws Exception {
-    	new Main(args[0]);
+		new Main("setup.yml");
+		
     }
     
     

@@ -27,21 +27,40 @@ providerSpecificInfo:
 
 instances:
   - options:  
-      hardware: m1.large
-      number: '1'
+      hardware: m1.small
+      number: '2'
     roles: 
-      - puppetmaster
-      - cdh3::hadoop::datanode
+      - cdh3::hadoop::datanode::service
       - cdh3::hadoop::tasktracker
+      - cdh3::zookeeper
     hostnames: 
       - puppet
+      - web
 
   - options:
       number: '1'
-      hardware: m1.small
+      hardware: m1.large
     roles: 
-      - cdh3::hadoop::namenode
+      - puppetmaster
+      - cdh3::hadoop::namenode::postinstall
       - cdh3::hadoop::jobtracker
+      - cdh3::zookeeper
     hostnames: 
       - mail
+
       
+#Specify service related configurations here, certain configuration properties
+#are set by the application eg. fs.default.name, hbase.zookeeper.quorum
+#Multivalued properties like dfs.data.dir are not yet supported and will not work
+userConfig: 
+  hdfs:  #configures hdfs-site.xml
+    dfs.permissions: "false"
+    dfs.replication: "1"
+    io.file.buffer.size: "65536"
+    dfs.datanode.handler.count: "6"
+    
+  #other valid userConfig subnodes:
+  #  core: configures core-site.xml
+  #  mapred: configures mapred-site.xml
+  #  zookeeper: configures zoo.cfg
+  #  hbase: configures hbase-site.cfg

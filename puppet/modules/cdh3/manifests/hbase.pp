@@ -5,7 +5,7 @@ class cdh3::hbase {
 
   #declaring classified variables as local variables for template usage since templates don't know classified variables and
   #we don't want to use scope.lookupvar("varname") for every variable
-  $hbase = $cdh3::hbase
+  $hbase = $cdh3::environment::hbase
   
   package { "hadoop-hbase":
     ensure => latest,
