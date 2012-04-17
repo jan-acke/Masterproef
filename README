@@ -1,1 +1,33 @@
+
+After installation you should download the java binary from http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.htmland place it in puppet/modules/java/files/.
+
+Execute the following commands
+cd puppet
+tar czf ../jajc/modules.tgz modules/
+cd ../jajc
+
+Now you have a modules.tgz file in the directory where the pom is.
+
+Define your setup in setup.yml, only byon works at the moment, make sure the hostnames are resolvable and each host has a correct /etc/hosts file. Make sure there is at least a cdh3::hadoop::namenode and a puppetmaster in the roles section.
+
+Execute mvn exec:java
+
+
+After a while the build will be completed and puppet should run on the cluster.
+Some checks to quickly see if the agents are installing their configuration:
+ls /opt -> this should contain the jdk1.6.0_31 directory
+ls /etc/apt/sources.list.d/ -> this should contain cloudera.list
+
+Configuration files like zoo.cfg and hdfs-site.xml should have the correct content.
+
+
+Debugging:
+Log in to the puppetmaster node, kill both the puppet services (master and agent) and execute the following command:
+/opt/ruby/bin/puppet master --verbose --no-daemonize
+
+Log into another node, kill puppet process and execute:
+/opt/ruby/bin/puppet agent --verbose --no-daemonize
+
+
+CREDITS:
 apt module from https://github.com/camptocamp/puppet-apt
