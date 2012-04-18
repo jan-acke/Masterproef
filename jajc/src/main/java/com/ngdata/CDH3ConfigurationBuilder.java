@@ -18,6 +18,13 @@ public class CDH3ConfigurationBuilder {
 		sb = new StringBuilder();
 		sb.append("class cdh3::environment {");
 		
+		String jobtracker = Iterables.filter(nodes, new Predicate<NodeMetadata>() {
+			@Override
+			public boolean apply(NodeMetadata nm) {
+				return nm.getTags().contains("cdh3::hadoop::namenode");
+			}
+		}).iterator().next().getHostname();
+		
 		StringBuilder namenode = new StringBuilder("hdfs://"); 
 		namenode.append(		
 				Iterables.filter(nodes, new Predicate<NodeMetadata>() {
@@ -65,6 +72,7 @@ public class CDH3ConfigurationBuilder {
 				createNoOverwriteProperty(properties, "dfs.data.dir", "/data/dn");
 			}
 			else if ("mapred".equals(s)) {
+				createOrOverwriteProperty(properties, "mapred.job.tracker", jobtracker + ":9001");
 				createNoOverwriteProperty(properties, "mapred.local.dir", "/data/mapred/local");
 				createNoOverwriteProperty(properties, "mapred.system.dir", "/mapred/system");
 			}
