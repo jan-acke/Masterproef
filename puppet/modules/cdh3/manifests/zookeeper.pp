@@ -1,6 +1,7 @@
 
 class cdh3::zookeeper {
   require java
+  require cdh3::environment
   require cdh3::repository
   include cdh3::zookeeper::install #,cdh3::zookeeper::service
   
