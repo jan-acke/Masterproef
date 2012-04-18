@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<connectors xmlns:conf="http://kauriproject.org/configuration"
+            conf:inherit="deep">
+
+  <serverConnectors conf:inheritKey="string(@protocols)">
+    <!--
+       | Configuration of the HTTP connector that serves the REST interface.
+       -->
+    <!-- To be able to start multiple lily servers on one host without having to make different
+         configurations, you can either set the port to 0 to use an ephemeral port, or you
+         can make it more deterministic with a configuration like this:
+         port="0" suggestedPort="12060" suggestedPortAlt="sequential" -->
+    <serverConnector protocols="HTTP" port="12060" conf:inheritKey="string(@name)">
+      <!--
+        The full list of parameters that can be used here can be found in the Javadoc
+        of the class org.restlet.ext.jetty.HttpServerHelper and its parent class.
+      -->
+
+      <!--
+        The type of Jetty connector to use.
+          1 : Selecting NIO connector (Jetty's SelectChannelConnector class).
+          2 : Blocking NIO connector (Jetty's BlockingChannelConnector class).
+          3 : Blocking BIO connector (Jetty's SocketConnector class).
+      -->
+      <!--
+          This was changed to 3 because of the problem described in #107
+      -->
+      <parameter name="type">3</parameter>
+    </serverConnector>
+  </serverConnectors>
+
+  <clientConnectors conf:inheritKey="string(@protocols)">
+    <clientConnector protocols="HTTP"/>
+    <clientConnector protocols="FILE"/>
+    <clientConnector protocols="CLAP"/>
+  </clientConnectors>
+</connectors>

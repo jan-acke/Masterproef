@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<hbase xmlns:conf="http://kauriproject.org/configuration"
+       conf:inherit="deep">
+
+  <!--
+     | These are the properties used to build the HBase configuration
+     | used by the HBase client.
+     -->
+
+  <properties conf:inheritKey="string(name)">
+
+<% lilyHbase.each do |name,value| -%>
+<% if value.kind_of?(Array) %>
+<% value = value.join(",") %>
+<% end -%>
+  <property>
+    <name><%= name %></name>
+    <value><%= value %></value>
+  </property>
+
+<% end -%>
+
+  </properties>
+
+</hbase>

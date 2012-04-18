@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<dns xmlns:conf="http://kauriproject.org/configuration"
+       conf:inherit="deep">
+
+  <!-- The name of the Network Interface from which
+       Lily should report its IP address -->
+  <interface>default</interface>
+
+  <!-- The host name or IP address of the name server (DNS)
+      which Lily should use to determine the host name used
+      for communication and display purposes. -->
+  <nameserver>default</nameserver>
+</dns>

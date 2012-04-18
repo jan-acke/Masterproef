@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<zooKeeper xmlns:conf="http://kauriproject.org/configuration"
+           conf:inherit="deep">
+
+<% lilyZooKeeper.each do |name,value| -%>
+<% if value.kind_of?(Array) %>
+<% value = value.join(",") %>
+<% end -%>
+  <<%=name%>><%=value%></<%=name%>>
+<% end -%>
+
+
+</zooKeeper>

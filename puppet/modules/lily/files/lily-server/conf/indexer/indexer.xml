@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<indexer xmlns:conf="http://kauriproject.org/configuration"
+               conf:inherit="deep">
+  <!--
+    The amount of message queue listeners (index updaters) that should be
+    started (on one Lily node) per index.
+
+    Since an index updater spends some time waiting on I/O, indexing will
+    go faster when running multiple index updaters in parallel on each Lily
+    node.
+  -->
+  <listenersPerIndex>10</listenersPerIndex>
+
+  <!--
+    Should a lock be taken so that the same record cannot be indexed concurrently by different
+    indexers? This locking is based on ZooKeeper.
+
+    We removed most cases where this locking was necessary (to assure newer content was not
+    overwritten with older content in the index). The only case where there is still a need
+    for this lock (to avoid the possibility of overwriting newer indexed data with older) is
+    when performing a full rebuild of an index for which incremental indexing is also
+    enabled. But in that case, the chance for contention seems to be quite small, so it
+    seems like overkill to permanently perform locking for this purpose. We hope to eventually
+    have another solution for this case, so that this locking becomes completely unnecessary.
+  -->
+  <enableLocking>false</enableLocking>
+
+  <solr>
+    <requestWriter>org.apache.solr.client.solrj.impl.BinaryRequestWriter</requestWriter>
+    <!--
+    <requestWriter>org.apache.solr.client.solrj.request.RequestWriter</requestWriter>
+    -->
+
+    <responseParser>org.apache.solr.client.solrj.impl.BinaryResponseParser</responseParser>
+    <!--
+    <responseParser>org.apache.solr.client.solrj.impl.XMLResponseParser</responseParser>
+    -->
+
+    <maxTotalConnections>200</maxTotalConnections>
+
+    <maxConnectionsPerHost>50</maxConnectionsPerHost>
+  </solr>
+
+  <!--
+     | These are the properties for the batch index build MR job. These are combined with
+     | the general MR properties in general/mapreduce.xml
+     -->
+  <batchJobProperties conf:inheritKey="string(name)">
+    <property>
+      <!--
+         | Number of concurrent indexing threads within one indexing map task.
+         | Since some time is spent in IO (retrieving data from HBase, sending data to Solr)
+         | the indexing can be sped up by running multiple threads.
+         -->
+      <name>org.lilyproject.indexer.batchbuild.threads</name>
+      <value>5</value>
+    </property>
+    <!-- Speculative execution makes little sense for Lily's batch indexing. -->
+    <property>
+      <name>mapred.map.tasks.speculative.execution</name>
+      <value>false</value>
+    </property>
+    <property>
+      <name>mapred.reduce.tasks.speculative.execution</name>
+      <value>false</value>
+    </property>
+  </batchJobProperties>
+
+  <!-- MasterNodes: Comma-separated list of hostnames of the nodes on which 
+       the IndexerMaster is allowed to run.
+       One of those nodes will be selected by the leader election algorithm 
+       to run the IndexerMaster on.
+       If no nodes are given (default), all lily nodes are taken into account.
+  -->
+  <masterNodes></masterNodes>
+</indexer>

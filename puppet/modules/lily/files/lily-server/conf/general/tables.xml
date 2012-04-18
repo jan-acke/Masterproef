@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<tables xmlns:conf="http://kauriproject.org/configuration"
+        conf:inherit="deep"
+        conf:inheritKey="string(@name)">
+
+  <!--
+     | This file enables to customize settings of the HBase tables created by Lily.
+     |
+     | These settings have only effect when the tables are initially created, thus
+     | the very first time when Lily is booted. Afterwards, change settings directly
+     | on HBase.
+     -->
+
+  <!-- Default settings for all created column families -->
+  <familyDefaults>
+    <!--<compression>lzo</compression>-->
+    <!--<bloomFilter>row</bloomFilter>-->
+    <!--<blockSize>65536</blockSize>-->
+  </familyDefaults>
+
+  <table name="record">
+    <splits>
+      <!--
+           The initial region splits to be specified when creating the table on HBase. This can help
+           initial performance a lot, since load will be distributed over all initial region servers
+           and no region splits/moves will need to happen for a while.
+
+           Specify either regionCount or splitKeys:
+
+            - regionCount: generate this number of initial region splits, based on the assumption that the
+                           record IDs are random UUIDs (Lily's default).
+
+            - splitKeys: specify the region splits as a comma-separated list.
+                         Example: <splitKeys>A,KLM,Z</splitKeys>
+                         Use \xFF notation for specifying bytes hexadecimal.
+                         Each split key will also be prefixed with the splitKeyPrefix (if specified).
+
+            - splitKeyPrefix: when the split keys are auto-generated (= when using regionCount instead
+                              of splitKeys), it might be that all entries in the table start with a
+                              common prefix, this prefix can be specified with this setting.
+
+           When using custom record IDs, either use 1 initial region, or specify custom split keys.
+      -->
+      <regionCount>1</regionCount>
+      <splitKeys></splitKeys>
+
+      <!-- UUID record id's all start with a 1-byte -->
+      <splitKeyPrefix>\x01</splitKeyPrefix>
+
+    </splits>
+
+    <!-- Maximum file size in bytes -->
+    <!--
+    <maxFileSize>67108864</maxFileSize>
+    -->
+
+    <!-- Memstore flush size in bytes -->
+    <!--
+    <memStoreFlushSize>33554432</memStoreFlushSize>
+    -->
+
+    <!--
+    <families>
+      <family name="data">
+        <compression>lzo</compression>
+        <bloomFilter>row</bloomFilter>
+        <blockSize>65536</blockSize>
+      </family>
+    </families>
+    -->
+  </table>
+
+  <table name="links-forward">
+    <splits>
+      <regionCount>1</regionCount>
+      <splitKeys></splitKeys>
+      <!-- In hbaseindex, each index field is prefixed with a meta-byte, which is 0 when the field is not null.
+           Also, UUID record id's are prefixed with a 1-byte. -->
+      <splitKeyPrefix>\x00\x01</splitKeyPrefix>
+    </splits>
+  </table>
+
+  <table name="links-backward">
+    <splits>
+      <regionCount>1</regionCount>
+      <splitKeys></splitKeys>
+      <!-- In hbaseindex, each index field is prefixed with a meta-byte, which is 0 when the field is not null.
+           Also, UUID record id's are prefixed with a 1-byte. -->
+      <splitKeyPrefix>\x00\x01</splitKeyPrefix>
+    </splits>
+  </table>
+  
+  <table name="blobincubator">
+    <splits>
+      <regionCount>1</regionCount>
+      <splitKeys></splitKeys>
+    </splits>
+  </table>
+
+</tables>

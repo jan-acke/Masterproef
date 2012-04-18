@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<rowlog  xmlns:conf="http://kauriproject.org/configuration"
+         conf:inherit="deep">
+
+  <!-- This is the initial config used at first startup. Afterwards, use lily-update-rowlog
+       to change settings. -->
+  <mqConfig>
+    <respectOrder>true</respectOrder>
+    <enableNotify>false</enableNotify>
+    <notifyDelay>100</notifyDelay>
+    <minimalProcessDelay>5000</minimalProcessDelay>
+    <wakeupTimeout>5000</wakeupTimeout>
+    <orphanedMessageDelay>120000</orphanedMessageDelay>
+    <deleteBufferSize>100</deleteBufferSize>
+  </mqConfig>
+
+  <!-- This is the initial config used at first startup. Afterwards, use lily-update-rowlog
+       to change settings. -->
+  <walConfig>
+    <respectOrder>false</respectOrder>
+    <enableNotify>true</enableNotify>
+    <notifyDelay>100</notifyDelay>
+    <minimalProcessDelay>0</minimalProcessDelay>
+    <wakeupTimeout>5000</wakeupTimeout>
+    <orphanedMessageDelay>120000</orphanedMessageDelay>
+    <deleteBufferSize>100</deleteBufferSize>
+  </walConfig>
+
+  <!-- The WAL or MQ processor is a component which is active on one of the Lily servers,
+       elected through ZooKeeper. The processor is responsible for continuing interrupted
+       secondary actions (in case of the WAL) or distributing messages to listeners (in
+       case of the MQ). By setting the enabled flag to false, this Lily instance will
+       not be a candidate to run the WAL or MQ processor. If they are disabled on all
+       Lily servers, no processing at all will happen. 
+       -->
+  <walProcessor enabled="true">
+    <!-- Nodes: A comma-separated list of hostnames on which the rowlog processor 
+         for the wal is allowed to run.
+         The leader election algorithm will select one of those nodes to run the 
+         processor on.
+         If no nodes are given (default), all lily nodes will be taken into account.
+    -->
+    <nodes></nodes>
+  </walProcessor>
+
+  <mqProcessor enabled="true">
+    <!-- Nodes: A comma-separated list of hostnames on which the rowlog processor 
+         for the message queue is allowed to run.
+         The leader election algorithm will select one of those nodes to run the 
+         processor on.
+         If no nodes are given (default), all lily nodes will be taken into account.
+    -->
+    <nodes></nodes>
+    <!--
+       The number of client threads to perform scans against the different rowlog
+       table splits. For example, if you put this equal to the number of region servers,
+       and there is one rowlog region per server, then all region servers will be queried
+       in parallel.
+       Set this to a value less than 1 to enable automatic determination of the number
+       of threads, based on the number of region servers.
+    -->
+    <!--
+    <scanThreadCount>3</scanThreadCount>
+    -->
+
+    <!--
+       For each message, a Lily server takes the 'now' timestamp to use
+       in the key of the message when adding it to the rowlog table. Due to clock skew
+       between servers, and because it might take some time before the actual insertion
+       is performed on HBase (e.g. loaded servers, region server downtime, region
+       moves, ...), the entry might only become visible on the rowlog table some time
+       when 'now' has passed. Therefore, the rowlog processor, when scanning this table,
+       needs to take a bit of margin on the timestamps.
+       Setting in milliseconds.
+    -->
+    <!--
+    <messageTimestampMargin>120000</messageTimestampMargin>
+    -->
+
+    <!--
+      The number of rows to retrieve in one scan on all the splits of the rowlog
+      global queue table. Thus, this number if divided by the number of rowlog shards,
+      the result is the batch size of a scan operation on one of the shards (= table splits).
+    -->
+    <!--
+    <scanBatchSize>1000</scanBatchSize>
+    -->
+
+    <!--
+      The 'messages work queue' is an internal buffer of messages to be dispatched to rowlog subscription
+      listeners (such as the indexer processes). This parameter defines the size of the buffer.
+      Usually corresponds to scanBatchSize.
+    -->
+    <!--
+    <messagesWorkQueueSize>1000</messagesWorkQueueSize>
+    -->
+  </mqProcessor>
+
+  <!-- linkIndexUpdater: if enabled, the wal-rowlog subscription will be made if necessary, if false,
+       the subscription will be removed if present (effectively disabling updating of the
+       link index). This setting should be the same on all your Lily nodes. -->
+  <linkIndexUpdater enabled="true"/>
+
+  <!-- mqFeeder: similar to linkIndexUpdater (adds/remove the wal-rowlog subscription).
+       If disabled, the message queue will not be fed with messages.
+  -->
+  <mqFeeder enabled="true"/>
+
+  <!-- Number of shards (splits) to create for the rowlog. Only has effect on initial table creation,
+       this parameter should not be changed afterwards and be the same on all Lily nodes.
+       A good choice is to make this twice the number of HBase region servers.
+  -->
+  <shardCount>1</shardCount>
+</rowlog>

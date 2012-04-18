@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<blobmanager  xmlns:conf="http://kauriproject.org/configuration"
+         conf:inherit="deep">
+
+  <!--  BlobIncubatorMonitor : Monitors the BlobIncubatorTable and cleans up any unused (stale) blobs. These are
+                               blobs which were uploaded, but not actually used in records.
+
+        minimalAge : The minimal age (in seconds) an unused blob needs to have before it gets deleted
+
+        monitorDelay : The time (in milliseconds) to pause between individual blob checks.
+                       This is used to control the load the BlobIncubatorMonitor generates on the system.
+                       This should be a small value, e.g. if you take 20ms this means at most 50 expired
+                       blobs can be handled per second (assuming a block check takes 0ms).
+
+        runDelay : The minimal time (in seconds) between two runs of the monitor.
+   -->
+  <blobIncubatorMonitor minimalAge="3600" monitorDelay="20" runDelay="600">
+    <!-- Nodes: A comma-separated list of hostnames of the nodes on which the 
+         blobIncubatorMonitor is allowed to run.
+         The leader election algorithm will select one of those nodes to run
+         the blobIncubatorMonitor on.
+         If no nodes are given (default), all lily-nodes will be taken into account.
+    -->
+  	<nodes></nodes>
+  </blobIncubatorMonitor>
+  
+  <!--  The BlobManager can store blobs in three different BlobStores : "HDFS", "HBASE" and "INLINE"
+        Depending on the size of the blob it is stored on Hdfs, in a dedicated HBase table or inside the blob field of the record.
+        The upper limits for the blob sizes can be configured below.
+        The default blobstore stores all blobs that are bigger than the biggest limit, this a mandatory setting.
+        The other limits are configured by giving the store's "name" and its upper "limit"
+   -->
+  <blobStore default="HDFS">
+    <store name="HBASE" limit="200000"/>
+    <store name="INLINE" limit="5000"/>
+  </blobStore>
+</blobmanager>

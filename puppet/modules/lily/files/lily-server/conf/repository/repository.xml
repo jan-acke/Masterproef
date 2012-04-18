@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<repository xmlns:conf="http://kauriproject.org/configuration"
+            conf:inherit="deep">
+
+  <!-- Filesystem to use to store blobs. The directory will be created if it
+       does not yet exist. -->
+  <blobFileSystem>hdfs://mail:8020/lily/blobs</blobFileSystem>
+
+  <!-- Port on which to bind the avro server, 0 will bind to an ephemeral port. -->
+  <port>12020</port>
+
+  <!-- Maximum number of concurrent threads that should be handling client requests.
+       Set to -1 for unbounded. -->
+  <maxServerThreads>35</maxServerThreads>
+
+  <!--
+    The names of the decorators that should be active. The decorators will be connected
+    in the specified order. The name should be the name with which the RepositoryDecorator
+    is registered in the PluginRegistry. If one of the named decorators would not have
+    been registered (= is not available), Lily will refuse to startup.
+  -->
+  <decorators>
+    <!--
+    <decorator>name</decorator>
+    -->
+  </decorators>
+
+  <!-- The names of the update hooks that should be active, listed in the order in
+       which they are called. For the name, same remarks as for decorators.
+  -->
+  <updateHooks>
+    <!--
+    <updateHook>name</updateHook>
+    -->
+  </updateHooks>
+
+</repository>

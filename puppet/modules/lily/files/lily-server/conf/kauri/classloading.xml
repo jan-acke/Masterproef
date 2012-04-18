@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<classLoading xmlns:conf="http://kauriproject.org/configuration"
+              conf:inherit="deep">
+
+  <required on-conflict="highest"/>
+  <allowed on-conflict="highest"/>
+
+</classLoading>
