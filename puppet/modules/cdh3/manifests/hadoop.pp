@@ -110,7 +110,7 @@ class cdh3::hadoop::namenode::postinstall {
     refreshonly => true,
   }
 
-  exec { "hadoop fs -mkdir ${cdh3::environment::mapred['mapred.system.dir']} && hadoop fs -chown mapred:hadoop ${cdh3::mapred['mapred.system.dir']}":
+  exec { "hadoop fs -mkdir ${cdh3::environment::mapred['mapred.system.dir']} && hadoop fs -chown mapred:hadoop ${cdh3::environment::mapred['mapred.system.dir']}":
     refreshonly => true,
     user => hdfs,
     subscribe => Exec["format_namenode"],

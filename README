@@ -8,7 +8,7 @@ cd ../jajc
 
 Now you have a modules.tgz file in the directory where the pom is.
 
-Define your setup in setup.yml, only byon works at the moment, make sure the hostnames are resolvable and each host has a correct /etc/hosts file. Make sure there is at least a cdh3::hadoop::namenode and a puppetmaster in the roles section.
+Define your setup in setup.yml, only byon works at the moment, make sure the hostnames are resolvable and each host has a correct /etc/hosts file. Make sure there is at least a cdh3::hadoop::namenode and a puppetmaster in the roles section. Other roles can be found in ../puppet/modules/cdh3/*.pp files. The zookeeper service and hbase service classes do not fully work
 
 Execute mvn exec:java
 
@@ -19,6 +19,9 @@ ls /opt -> this should contain the jdk1.6.0_31 directory
 ls /etc/apt/sources.list.d/ -> this should contain cloudera.list
 
 Configuration files like zoo.cfg and hdfs-site.xml should have the correct content.
+
+If you chose the cdh3::hadoop::namenode::postinstall module you should be able to see the webinterface of the namenode on <hostname namenode>:50070
+
 
 
 Debugging:

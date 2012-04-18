@@ -14,7 +14,7 @@ public abstract class Provider {
 	public static Provider createProvider(IConfig configuration) throws JaJcLogicalConfigException, RunNodesException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		config = configuration;
 		String providerType = config.getGeneral().getProvider();
-		if (providerType.indexOf('.') == -1)
+		if (providerType.indexOf("Provider") == -1)
 			return (Provider) Class.forName( "com.ngdata." + providerType.toUpperCase() + "Provider").newInstance();
 		else
 			return (Provider) Class.forName(providerType).newInstance();
