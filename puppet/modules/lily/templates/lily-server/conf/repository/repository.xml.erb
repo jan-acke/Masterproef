@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<repository xmlns:conf="http://kauriproject.org/configuration"
+            conf:inherit="deep">
+
+<% lilyZooKeeper.each do |name,value| -%>
+<% if value.kind_of?(Array) %>
+<% value = value.join(",") %>
+<% end -%>
+  <<%=name%>><%=value%></<%=name%>>
+<% end -%>
+
+
+
+  <!--
+    The names of the decorators that should be active. The decorators will be connected
+    in the specified order. The name should be the name with which the RepositoryDecorator
+    is registered in the PluginRegistry. If one of the named decorators would not have
+    been registered (= is not available), Lily will refuse to startup.
+  -->
+  <decorators>
+    <!--
+    <decorator>name</decorator>
+    -->
+  </decorators>
+
+  <!-- The names of the update hooks that should be active, listed in the order in
+       which they are called. For the name, same remarks as for decorators.
+  -->
+  <updateHooks>
+    <!--
+    <updateHook>name</updateHook>
+    -->
+  </updateHooks>
+
+</repository>

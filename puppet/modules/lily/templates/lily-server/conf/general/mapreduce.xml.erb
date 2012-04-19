@@ -7,15 +7,18 @@
      |  used for MR jobs.
      -->
   <properties conf:inheritKey="string(name)">
-    <property>
-      <name>mapred.job.tracker</name>
-      <value>mail:9001</value>
-    </property>
-    <property>
-      <!-- DFS location: needed for distributed cache (maybe also for other things, not sure) -->
-      <name>fs.default.name</name>
-      <value>hdfs://mail:8020</value>
-    </property>
+
+<% lilyMapReduce.each do |name,value| -%>
+<% if value.kind_of?(Array) %>
+<% value = value.join(",") %>
+<% end -%>
+  <property>
+    <name><%= name %></name>
+    <value><%= value %></value>
+  </property>
+
+<% end -%>
+
   </properties>
 
 </mapreduce>

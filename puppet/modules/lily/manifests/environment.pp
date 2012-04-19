@@ -13,5 +13,16 @@ class lily::environment {
     "startUpTimeout" => "600000"
   }
 
+  $lilyMapReduce = {
+    "mapred.job.tracker" => "mail:9001",
+    "fs.default.name" => "hdfs://mail:8020"
+  }
+
+  $lilyRepository = {
+    "blobFileSystem" => "hdfs://mail:8020/lily/blobs",
+    "port" => "12020",
+    "maxServerThreads" => "35"
+  }
+
   
 }

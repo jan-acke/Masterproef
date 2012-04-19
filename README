@@ -1,5 +1,10 @@
 
 After installation you should download the java binary from http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.htmland place it in puppet/modules/java/files/.
+To be able to install lily-enterprise packages add the following to puppet/modules/lily/manifests/init.pp just below the repository class definition: 
+$user = <username>
+$password = <password>
+These are your Lily-enterprise credentials.
+Lily modules are untested, dont use them for now
 
 Execute the following commands
 cd puppet
