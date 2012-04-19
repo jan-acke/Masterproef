@@ -21,7 +21,7 @@ public class CDH3ConfigurationBuilder {
 		String jobtracker = Iterables.filter(nodes, new Predicate<NodeMetadata>() {
 			@Override
 			public boolean apply(NodeMetadata nm) {
-				return nm.getTags().contains("cdh3::hadoop::namenode");
+				return nm.getTags().contains("cdh3::hadoop::jobtracker");
 			}
 		}).iterator().next().getHostname();
 		
