@@ -19,8 +19,31 @@ ls /opt -> this should contain the jdk1.6.0_31 directory
 ls /etc/apt/sources.list.d/ -> this should contain cloudera.list
 
 Configuration files like zoo.cfg and hdfs-site.xml should have the correct content.
+For now set the following environmental variables manually as root:
+export JAVA_HOME=/opt/jdk1.6.0_31
+
+
 
 If you chose the cdh3::hadoop::namenode::postinstall module you should be able to see the webinterface of the namenode on <hostname namenode>:50070
+
+Start the jobtracker and the namenodes on the correct nodes:
+/etc/init.d/hadoop-0.20-jobtracker start
+/etc/init.d/hadoop-0.20-tasktracker start
+Go to <hostname jobtracker>:50030 to check if the jobtracker and the tasktrackers are running
+
+Start ZooKeeper on the zookeeper nodes:
+export FACTER_zooid=n # check /etc/zookeeper/zoo.cfg to find n, it depends on the hostname
+
+/usr/lib/zookeeper/bin/zkServer.sh start
+Check if you can connect to the nodes by checking if you can use the zookeeper command line interface:
+/usr/lib/zookeeper/bin/zkCli.sh
+Type quit to leave the zookeeper CLI.
+
+Start HBasemaster and regionserver:
+/etc/init.d/hadoop-hbase-master start
+/etc/init.d/hadoop-hbase-regionserver start
+Go to <hostname hbasemaster>:60010 to check if the hbase master and the regionservers are running
+
 
 
 
