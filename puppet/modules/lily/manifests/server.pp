@@ -1,5 +1,6 @@
 
 class lily::server {
+  require lily::environment
   require lily::repository
   package { "lily":
     ensure => latest, #or use a specific version eg: ensure => "1.1.2-2"
@@ -12,7 +13,7 @@ class lily::server {
 
 
   #hashes used in configuration files
-  $lilyHbase = $liy::environment::lilyHbase
+  $lilyHbase = $lily::environment::lilyHbase
   $lilyZooKeeper = $lily::environment::lilyZooKeeper
   $lilyMapReduce = $lily::environment::lilyMapReduce
   $lilyRepository = $lily::environment::lilyRepository
