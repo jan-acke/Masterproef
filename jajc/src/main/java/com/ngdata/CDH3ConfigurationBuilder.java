@@ -3,7 +3,9 @@ package com.ngdata;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.scriptbuilder.ScriptBuilder;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -13,7 +15,7 @@ public class CDH3ConfigurationBuilder {
 	
 	private static StringBuilder sb;
 
-	public static String createConfiguration(Iterable<NodeMetadata> nodes, IConfig config) throws JajcException {
+	public static String createConfiguration(Iterable<NodeMetadata> nodes, IConfig config, ComputeServiceContext context) throws JajcException {
 		
 		sb = new StringBuilder();
 		sb.append("class cdh3::environment {");
@@ -21,7 +23,8 @@ public class CDH3ConfigurationBuilder {
 		String jobtracker = Iterables.filter(nodes, new Predicate<NodeMetadata>() {
 			@Override
 			public boolean apply(NodeMetadata nm) {
-				return nm.getTags().contains("cdh3::hadoop::jobtracker");
+				return nm.getTags().contains("cdh3::hadoop::jobtracker")
+						|| nm.getTags().contains("cdh3::hadoop::jobtracker::service");
 			}
 		}).iterator().next().getHostname();
 		
@@ -45,6 +48,8 @@ public class CDH3ConfigurationBuilder {
 				return nm.getTags().contains("cdh3::zookeeper");
 				
 			}});
+		
+		//starts with 1 because the zoo.cfg puppet template is configured that way
 		for (NodeMetadata zknode : zknodes) {
 			zk_quorum.append(" \"" + zknode.getHostname() + "\" ," );
 		}
@@ -100,6 +105,7 @@ public class CDH3ConfigurationBuilder {
 		return sb.toString();
 			
 	}
+
 
 	private static void createHash(String name,Map<String,String> properties) {
 		sb.append("\n\n#").append(name);

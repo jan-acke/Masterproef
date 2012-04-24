@@ -1,8 +1,7 @@
 
 class cdh3::hbase {
   require cdh3::hadoop
-  require cdh3::zookeeper
-
+  
   #declaring classified variables as local variables for template usage since templates don't know classified variables and
   #we don't want to use scope.lookupvar("varname") for every variable
   $hbase = $cdh3::environment::hbase
@@ -34,10 +33,18 @@ class cdh3::hbase::master {
     ensure => latest,
   }
 
+  # service { "stophbasemaster":
+  #   ensure => stopped,
+  #   name => "hadoop-hbase-master",
+  #   require => Package["hadoop-hbase-master"]
+  # }
+
   exec { "hadoop fs -mkdir /hbase && hadoop fs -chown hbase /hbase":
     user => hdfs,
     refreshonly => true,
     subscribe => Exec["format_namenode"],
+    require => Package["hadoop-hbase-master"],
+#    require => Service["stophbasemaster"],
   }
 }
 
@@ -48,7 +55,8 @@ class cdh3::hbase::master::service {
   service { "hadoop-hbase-master":
     ensure => running,
     hasrestart => true,
-    require => Service["hadoop-0.20-namenode"]
+    require => Service["hadoop-0.20-namenode"],
+    subscribe => File["/etc/hbase/conf/hbase-site.xml"],
   }
 }
 
@@ -58,6 +66,12 @@ class cdh3::hbase::regionserver {
   package { "hadoop-hbase-regionserver":
     ensure => latest,
   }
+
+  # service { "stopregionserver":
+  #   ensure => stopped,
+  #   name => "hadoop-hbase-regionserver",
+  #   require => Package["hadoop-hbase-regionserver"],
+  # }
 }
 
 class cdh3::hbase::regionserver::service {
@@ -65,5 +79,6 @@ class cdh3::hbase::regionserver::service {
   service { "hadoop-hbase-regionserver":
     ensure => running,
     hasrestart => true,
+    subscribe => File["/etc/hbase/conf/hbase-site.xml"],
   }
 }

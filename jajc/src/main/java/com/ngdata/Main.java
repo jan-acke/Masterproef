@@ -83,6 +83,7 @@ public class Main
 		lines.add("ssldir = /var/lib/puppet/ssl");
 		lines.add("rundir = /var/run/puppet");
 		lines.add("server = " + pm.getHostname());
+		lines.add("pluginsync = true");
 		
 		
 		ScriptBuilder sb = new ScriptBuilder();
@@ -91,7 +92,8 @@ public class Main
 		sb.addStatement(Statements.exec("gem install puppet facter --no-ri --no-rdoc"));
 		sb.addStatement(Statements.exec("groupadd puppet"));
 		sb.addStatement(Statements.exec("useradd -g puppet -G admin puppet"));
-		sb.addStatement(Statements.exec("export PATH=$PATH:/opt/ruby/bin")); //puppet in PATH
+		sb.addStatement(Statements.exec("echo \"export PATH=$PATH:/opt/ruby/bin\" | tee -a /etc/environment")); //puppet in PATH
+		sb.addStatement(Statements.exec("echo \"export JAVA_HOME=/opt/jdk1.6.0_31\" | tee -a /etc/environment"));
 		sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet/puppet.conf", lines));
 		
 		System.out.println("Installing necessary components for puppet");
@@ -117,7 +119,7 @@ public class Main
 			ssh.connect();
 			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/modules.tgz")));
 			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
-			ssh.put("/tmp/environment.pp",Payloads.newStringPayload(CDH3ConfigurationBuilder.createConfiguration(nodes, config)));
+			ssh.put("/tmp/environment.pp",Payloads.newStringPayload(CDH3ConfigurationBuilder.createConfiguration(nodes, config, context)));
 			ssh.exec("sudo cp /tmp/environment.pp /etc/puppet/modules/cdh3/manifests/");
 			System.out.println(ssh.exec("sudo /opt/ruby/bin/puppet master"));
 			
@@ -129,6 +131,11 @@ public class Main
 		}
 		
 		System.out.println("Starting puppet agents");
+		
+		ScriptBuilder sb2 = new ScriptBuilder();
+		Map<String,String> envs = new HashMap<String,String>();
+		envs.put("JAVA_HOME","/opt/jdk1.6.0_31");
+		sb.addEnvironmentVariableScope("zever", envs);
 		Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
 				.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
 							, Statements.exec("/opt/ruby/bin/puppet agent"));

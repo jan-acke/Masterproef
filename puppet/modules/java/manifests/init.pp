@@ -13,7 +13,7 @@ class java::install {
     creates => "/opt/jdk1.6.0_31",
     cwd => "/opt",
   }
-  
+
 }
 
 class java {

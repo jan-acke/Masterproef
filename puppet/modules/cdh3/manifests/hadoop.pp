@@ -147,16 +147,22 @@ class cdh3::hadoop::jobtracker {
   package { "hadoop-0.20-jobtracker":
     ensure => latest,
   }
+
+  service { "stopjobtracker":
+    ensure => stopped,
+    name => "hadoop-0.20-jobtracker",
+    require => Package["hadoop-0.20-jobtracker"],
+  }
 }
 
 
 class cdh3::hadoop::jobtracker::service {
   require cdh3::hadoop::jobtracker
-
+  
   service { "hadoop-0.20-jobtracker":
     ensure => running,
     hasrestart => true,
-    require => Service["hadoop-0.20-namenode"]
+    require => Class["cdh3::hadoop::namenode::postinstall"],
   }
 }
 
@@ -167,6 +173,12 @@ class cdh3::hadoop::tasktracker {
   package { "hadoop-0.20-tasktracker":
     ensure => latest,
   }
+
+  service { "stoptasktracker":
+    ensure => stopped,
+    name => "hadoop-0.20-tasktracker",
+    require => Package["hadoop-0.20-tasktracker"],
+  }
 }
 
 
@@ -175,5 +187,6 @@ class cdh3::hadoop::tasktracker::service {
 
   service { "hadoop-0.20-tasktracker":
     ensure => running,
+    hasrestart => true,
   }
 }

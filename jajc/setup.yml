@@ -31,9 +31,9 @@ instances:
       number: '2'
     roles: 
       - cdh3::hadoop::datanode::service
-      - cdh3::hadoop::tasktracker
+      - cdh3::hadoop::tasktracker::service
       - cdh3::zookeeper
-      - cdh3::hbase::regionserver
+      - cdh3::hbase::regionserver::service
 #      - lily::solr
 #      - lily::admin
     hostnames: 
@@ -46,8 +46,8 @@ instances:
     roles: 
       - puppetmaster
       - cdh3::hadoop::namenode::postinstall
-      - cdh3::hadoop::jobtracker
-      - cdh3::hbase::master
+      - cdh3::hadoop::jobtracker::service
+      - cdh3::hbase::master::service
       - cdh3::zookeeper
 #      - lily::server
     hostnames: 
@@ -63,6 +63,8 @@ userConfig:
     dfs.replication: "1"
     io.file.buffer.size: "65536"
     dfs.datanode.handler.count: "6"
+  # zookeeper:
+  #   dataDir: "/var/lib/zookeeper"
     
   #other valid userConfig subnodes:
   #  core: configures core-site.xml
