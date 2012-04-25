@@ -1,4 +1,5 @@
 
+
 class cdh3::hbase {
   require cdh3::hadoop
   
@@ -31,34 +32,31 @@ class cdh3::hbase::master {
 
   package { "hadoop-hbase-master":
     ensure => latest,
+    require => Exec["createHbasedirs"],
+
   }
 
-  # service { "stophbasemaster":
-  #   ensure => stopped,
-  #   name => "hadoop-hbase-master",
-  #   require => Package["hadoop-hbase-master"]
-  # }
-
-  exec { "hadoop fs -mkdir /hbase && hadoop fs -chown hbase /hbase":
+  exec { "createHbasedirs":
+    command => "hadoop fs -mkdir /hbase && hadoop fs -chown hbase /hbase",
     user => hdfs,
     refreshonly => true,
-    subscribe => Exec["format_namenode"],
-    require => Package["hadoop-hbase-master"],
+    require => Package["hadoop-hbase"],
+#    subscribe => Exec["format_namenode"],
 #    require => Service["stophbasemaster"],
   }
 }
 
-class cdh3::hbase::master::service {
-  require cdh3::hbase::master
-  require cdh3::hadoop::jobtracker::service
-  require cdh3::zookeeper::service
-  service { "hadoop-hbase-master":
-    ensure => running,
-    hasrestart => true,
-    require => Service["hadoop-0.20-namenode"],
-    subscribe => File["/etc/hbase/conf/hbase-site.xml"],
-  }
-}
+# class cdh3::hbase::master::service {
+#   require cdh3::hbase::master
+#   require cdh3::hadoop::jobtracker::service
+#   require cdh3::zookeeper::service
+#   service { "hadoop-hbase-master":
+#     ensure => running,
+#     hasrestart => true,
+#     require => Service["hadoop-0.20-namenode"],
+#     subscribe => File["/etc/hbase/conf/hbase-site.xml"],
+#   }
+# }
 
 class cdh3::hbase::regionserver {
   require cdh3::hbase
@@ -66,19 +64,13 @@ class cdh3::hbase::regionserver {
   package { "hadoop-hbase-regionserver":
     ensure => latest,
   }
-
-  # service { "stopregionserver":
-  #   ensure => stopped,
-  #   name => "hadoop-hbase-regionserver",
-  #   require => Package["hadoop-hbase-regionserver"],
-  # }
 }
 
-class cdh3::hbase::regionserver::service {
-  require cdh3::hbase::regionserver
-  service { "hadoop-hbase-regionserver":
-    ensure => running,
-    hasrestart => true,
-    subscribe => File["/etc/hbase/conf/hbase-site.xml"],
-  }
-}
+# class cdh3::hbase::regionserver::service {
+#   require cdh3::hbase::regionserver
+#   service { "hadoop-hbase-regionserver":
+#     ensure => running,
+#     hasrestart => true,
+#     subscribe => File["/etc/hbase/conf/hbase-site.xml"],
+#   }
+# }

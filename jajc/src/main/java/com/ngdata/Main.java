@@ -77,7 +77,7 @@ public class Main
 		lines.add("[master]");
 		lines.add("certname=" + pm.getHostname());
 		lines.add("[main]");
-		lines.add("logdir = /var/lib/puppet/log");
+		//lines.add("logdir = /var/lib/puppet/log");
 		lines.add("vardir = /var/lib/puppet");
 		lines.add("factpath = $vardir/lib/facter");
 		lines.add("ssldir = /var/lib/puppet/ssl");
@@ -94,6 +94,10 @@ public class Main
 		sb.addStatement(Statements.exec("useradd -g puppet -G admin puppet"));
 		sb.addStatement(Statements.exec("echo \"export PATH=$PATH:/opt/ruby/bin\" | tee -a /etc/environment")); //puppet in PATH
 		sb.addStatement(Statements.exec("echo \"export JAVA_HOME=/opt/jdk1.6.0_31\" | tee -a /etc/environment"));
+		
+		//us.archive.ubuntu is often offline or slow and apt-updates might confuse puppet
+		//sb.addStatement(Statements.exec("rm -rf /etc/apt/sources.list"));
+		
 		sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet/puppet.conf", lines));
 		
 		System.out.println("Installing necessary components for puppet");
@@ -132,18 +136,20 @@ public class Main
 		
 		System.out.println("Starting puppet agents");
 		
+		//can be improved, see jclouds scriptbuildertest as example
 		ScriptBuilder sb2 = new ScriptBuilder();
-		Map<String,String> envs = new HashMap<String,String>();
-		envs.put("JAVA_HOME","/opt/jdk1.6.0_31");
-		sb.addEnvironmentVariableScope("zever", envs);
-		Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
-				.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
-							, Statements.exec("/opt/ruby/bin/puppet agent"));
-		for ( NodeMetadata entry : resp3.keySet()) {
-			System.out.println(entry.getHostname() + " ---> " + resp3.get(entry));
-			
-		}
-		
+		//Map<String,String> envs = new HashMap<String,String>();
+		//envs.put("JAVA_HOME","/opt/jdk1.6.0_31");
+		//sb2.addEnvironmentVariableScope("default", envs);
+//		sb2.addStatement(Statements.exec("export JAVA_HOME=/opt/jdk1.6.0_31 && /opt/ruby/bin/puppet agent"));
+//		Map<? extends NodeMetadata, ExecResponse> resp3 = context.getComputeService()
+//				.runScriptOnNodesMatching(Predicates.<NodeMetadata> alwaysTrue()
+//							, sb2);
+//		for ( NodeMetadata entry : resp3.keySet()) {
+//			System.out.println(entry.getHostname() + " ---> " + resp3.get(entry));
+//			
+//		}
+//		
 		context.close();
 			
 	}

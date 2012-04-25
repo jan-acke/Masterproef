@@ -8,10 +8,10 @@ class cdh3::zookeeper {
 }
 
 class cdh3::zookeeper::install {
+
   $zookeeper = $cdh3::environment::zookeeper
-    notice("Trying to create zk myid file with with zooid = ${zooid}")
   
-  package { "hadoop-zookeeper-server":
+  package { "hadoop-zookeeper":
     ensure => latest,
     require => Class["cdh3::zookeeper"],
   }
@@ -21,7 +21,7 @@ class cdh3::zookeeper::install {
     ensure => directory,
     owner => zookeeper,
     group => zookeeper,
-    require => Package["hadoop-zookeeper-server"],
+    require => Package["hadoop-zookeeper"],
   }
 
   # Does not work with the fact: FACTER_zooid requires difficult java configuration
@@ -32,29 +32,20 @@ class cdh3::zookeeper::install {
     require => File["zk.dataDir","/etc/zookeeper/zoo.cfg"],
   }
 
-  service { "stopzookeeper":
-    name => "hadoop-zookeeper-server",
-    ensure => stopped,
-    require => Package["hadoop-zookeeper-server"],
-  }
     
-  
   file { "/etc/zookeeper/zoo.cfg":
     content => template("cdh3/zookeeper/zoo.cfg.erb"),
     owner => zookeeper,
     group => zookeeper,
-    require => Service["stopzookeeper"],
+    require => Package["hadoop-zookeeper"],
   }
 }
 
 class cdh3::zookeeper::service {
+  require cdh3::zookeeper::install
   
-  service { "hadoop-zookeeper-server":
-    hasrestart => true,
-    restart => "restart",
-    ensure => running,
-    require => Class["cdh3::zookeeper::install"],
-    subscribe => File["/etc/zookeeper/zoo.cfg"],
+  package { "hadoop-zookeeper-server":
+    ensure => present,
   }
 
 }

@@ -7,11 +7,6 @@ class lily::server {
     
   }
 
-  package { "lily-server":
-    ensure => latest,
-  }
-
-
   #hashes used in configuration files
   $lilyHbase = $lily::environment::lilyHbase
   $lilyZooKeeper = $lily::environment::lilyZooKeeper
@@ -22,7 +17,7 @@ class lily::server {
   $location = "/usr/lib/lily/conf"
   file { "${location}":
     ensure => directory,
-    require => Package["lily-server"],
+    require => Package["lily"],
     source => "puppet:///modules/lily/lily-server/conf",
     owner => root,
     group => root,
@@ -56,5 +51,14 @@ class lily::server {
     require => File[ $location ],
     content => template("lily/lily-server/conf/repository/repository.xml.erb")
   }
-  
+
+
+}
+
+
+class lily::server::service  {
+  require lily::server
+  package { "lily-server":
+    ensure => latest,
+  }
 }

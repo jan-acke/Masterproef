@@ -33,8 +33,8 @@ instances:
       - cdh3::hadoop::datanode::service
       - cdh3::hadoop::tasktracker::service
       - cdh3::zookeeper
-      - cdh3::hbase::regionserver::service
-#      - lily::solr
+      - cdh3::hbase::regionserver
+      - lily::solr::service
 #      - lily::admin
     hostnames: 
       - puppet
@@ -47,9 +47,9 @@ instances:
       - puppetmaster
       - cdh3::hadoop::namenode::postinstall
       - cdh3::hadoop::jobtracker::service
-      - cdh3::hbase::master::service
+      - cdh3::hbase::master
       - cdh3::zookeeper
-#      - lily::server
+      - lily::server::service
     hostnames: 
       - mail
 
