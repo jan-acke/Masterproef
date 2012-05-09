@@ -1,9 +1,9 @@
-package com.ngdata;
+package com.ngdata.jajc;
 import java.util.List;
 import java.util.Map;
 
-import com.ngdata.bo.General;
-import com.ngdata.bo.Instance;
+import com.ngdata.jajc.bo.General;
+import com.ngdata.jajc.bo.Instance;
 
 
 public interface IConfig {

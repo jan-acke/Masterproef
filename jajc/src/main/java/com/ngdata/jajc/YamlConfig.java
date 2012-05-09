@@ -1,19 +1,19 @@
-package com.ngdata;
+package com.ngdata.jajc;
 
 import java.util.List;
 import java.util.Map;
 
-import com.ngdata.bo.General;
-import com.ngdata.bo.Instance;
+import com.ngdata.jajc.bo.General;
+import com.ngdata.jajc.bo.Instance;
 
-public class YAMLConfig implements IConfig {
+public class YamlConfig implements IConfig {
 
 	private General general;
 	private List<Instance> instances;
 	private Map<String,Map<String,String>> providerSpecificInfo;
 	private Map<String, Map<String, String>> userConfig;
 	
-	public YAMLConfig() {}
+	public YamlConfig() {}
 	
 	public General getGeneral() {
 		return general;

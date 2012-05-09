@@ -4,6 +4,7 @@ class cdh3::repository {
   include apt
   
   apt::key {"Cloudera":
+      ensure => present,
       source  => "http://archive.cloudera.com/debian/archive.key",
     }
   

@@ -14,4 +14,9 @@ class apt::params {
     ""      => ".placeholder",
     default => $apt_ignore_sourceslist,
   }
+
+  $keyring_package = $::lsbdistid ? {
+    Debian => ['debian-keyring', 'debian-archive-keyring'],
+    Ubuntu => 'ubuntu-keyring',
+  }
 }

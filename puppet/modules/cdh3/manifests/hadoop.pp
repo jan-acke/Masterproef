@@ -35,7 +35,7 @@ class cdh3::hadoop {
     owner => mapred,
     group => hadoop,
     mode => 755,
-    require => Package["hadoop-0.20"],
+    require => Exec["create_directories"],
   }
 
   $location = "/etc/hadoop-0.20/conf.mine"
@@ -148,11 +148,11 @@ class cdh3::hadoop::jobtracker {
     ensure => latest,
   }
 
-  service { "stopjobtracker":
-    ensure => stopped,
-    name => "hadoop-0.20-jobtracker",
-    require => Package["hadoop-0.20-jobtracker"],
-  }
+  # service { "stopjobtracker":
+  #   ensure => stopped,
+  #   name => "hadoop-0.20-jobtracker",
+  #   require => Package["hadoop-0.20-jobtracker"],
+  # }
 }
 
 
@@ -174,11 +174,11 @@ class cdh3::hadoop::tasktracker {
     ensure => latest,
   }
 
-  service { "stoptasktracker":
-    ensure => stopped,
-    name => "hadoop-0.20-tasktracker",
-    require => Package["hadoop-0.20-tasktracker"],
-  }
+  # service { "stoptasktracker":
+  #   ensure => stopped,
+  #   name => "hadoop-0.20-tasktracker",
+  #   require => Package["hadoop-0.20-tasktracker"],
+  # }
 }
 
 

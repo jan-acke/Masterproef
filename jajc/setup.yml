@@ -34,7 +34,7 @@ instances:
       - cdh3::hadoop::tasktracker::service
       - cdh3::zookeeper
       - cdh3::hbase::regionserver
-      - lily::solr::service
+      - lily::solr
 #      - lily::admin
     hostnames: 
       - puppet
@@ -49,7 +49,7 @@ instances:
       - cdh3::hadoop::jobtracker::service
       - cdh3::hbase::master
       - cdh3::zookeeper
-      - lily::server::service
+      - lily::server
     hostnames: 
       - mail
 
@@ -71,3 +71,10 @@ userConfig:
   #  mapred: configures mapred-site.xml
   #  zookeeper: configures zoo.cfg
   #  hbase: configures hbase-site.cfg
+
+  java:
+    bin_filename: "jdk-6u31-linux-i586.bin"
+
+  lily:
+    username: "your lily repository username"
+    password: "your lily repository password"

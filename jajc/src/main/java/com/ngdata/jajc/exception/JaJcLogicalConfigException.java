@@ -1,4 +1,4 @@
-package com.ngdata.exception;
+package com.ngdata.jajc.exception;
 
 public class JaJcLogicalConfigException extends JajcException {
 

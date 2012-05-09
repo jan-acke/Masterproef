@@ -1,4 +1,4 @@
-package com.ngdata.bo;
+package com.ngdata.jajc.bo;
 
 import java.util.List;
 import java.util.Map;

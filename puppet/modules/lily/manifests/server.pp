@@ -14,14 +14,19 @@ class lily::server {
   $lilyRepository = $lily::environment::lilyRepository
 
 
+
+  
   $location = "/usr/lib/lily/conf"
+
+  #Lily configuration files are downloaded with the package and change when newer versions
+  #are released => only override the ones we need to configure
   file { "${location}":
     ensure => directory,
     require => Package["lily"],
-    source => "puppet:///modules/lily/lily-server/conf",
+    #source => "puppet:///modules/lily/lily-server/conf"
     owner => root,
     group => root,
-    recurse => true
+    #recurse => true
   }
 
   file { "${location}/general/hbase.xml":

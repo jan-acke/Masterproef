@@ -1,36 +1,44 @@
-package com.ngdata;
+package com.ngdata.jajc.providers;
 
 import java.util.Map;
 import java.util.Properties;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
+import org.jclouds.compute.RunScriptOnNodesException;
+import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.NodeMetadataBuilder;
+import org.jclouds.scriptbuilder.domain.Statement;
+import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import com.ngdata.bo.Instance;
-import com.ngdata.exception.JaJcLogicalConfigException;
+import com.ngdata.jajc.bo.Instance;
+import com.ngdata.jajc.exception.JaJcLogicalConfigException;
 
-public class BYONProvider extends Provider {
+public class BYONProvider extends AbstractProvider {
 	
 	private ComputeServiceContext context;
+
+	public BYONProvider() {
+	}
 	
-	public BYONProvider() throws JaJcLogicalConfigException {
-		
+	public void build() throws JaJcLogicalConfigException {
 		Properties byonProps = new Properties();
-    	Map<String,String> byonConfig = config.getProviderSpecificInfo("byon");
+    	Map<String,String> byonConfig = getConfiguration().getProviderSpecificInfo("byon");
     	
     	StringBuilder yaml = new StringBuilder(); 
     	yaml.append("nodes:");
-    	for ( Instance i : config.getInstances()) {
+    	for ( Instance i : getConfiguration().getInstances()) {
     		Map<String,String> instanceConfig = i.getOptions();
     		String os_arch = getValue(byonConfig, instanceConfig, "os_arch");
     		String os_family = getValue(byonConfig, instanceConfig, "os_family");
     		String os_description = getValue(byonConfig, instanceConfig, "os_description");
     		String os_version = getValue(byonConfig,instanceConfig,"os_version");
     		String username = getValue(byonConfig,instanceConfig,"username",true);
-    		String sudo_password = getValue(byonConfig,instanceConfig,"sudo_password",true);
+    		String sudo_password = getValue(byonConfig,instanceConfig,"sudo_password");
     		String credential = getValue(byonConfig,instanceConfig,"credential");
     		String credential_url = getValue(byonConfig, instanceConfig, "credential_url");
     		if (credential == "" && credential_url == "")
@@ -47,7 +55,7 @@ public class BYONProvider extends Provider {
     			yaml.append("\n      os_family: ").append(os_family);
     			yaml.append("\n      os_description: ").append(os_description);
     			yaml.append("\n      os_version: ").append(os_version);
-    			yaml.append("\n      group: ").append(config.getGeneral().getClustername());
+    			yaml.append("\n      group: ").append(getConfiguration().getGeneral().getClustername());
     			yaml.append("\n      username: ").append(username);
     			yaml.append("\n      sudo_password: ").append(sudo_password);
     			if (credential == null)
@@ -69,6 +77,7 @@ public class BYONProvider extends Provider {
     	
 	}
 
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterable<NodeMetadata> getNodes() {
@@ -76,8 +85,28 @@ public class BYONProvider extends Provider {
 	}
 
 	@Override
-	public ComputeServiceContext getContext() {
-		return context;
+	public Map<? extends NodeMetadata, ExecResponse> runScriptOnNodesMatching(
+			Predicate<NodeMetadata> filter, Statement runScript) throws RunScriptOnNodesException {
+		return context.getComputeService().runScriptOnNodesMatching(filter, runScript);
 	}
+
+	@Override
+	public ExecResponse runScriptOnNode(String id, Statement runScript) {
+		return context.getComputeService().runScriptOnNode(id, runScript);
+	}
+
+	@Override
+	public void closeContext() {
+		context.close();
+		
+	}
+
+	@Override
+	public SshClient getSshClient(NodeMetadata node) {
+		return context.utils().sshForNode().apply(NodeMetadataBuilder.fromNodeMetadata(node).build());
+		
+	}
+
+
 
 }

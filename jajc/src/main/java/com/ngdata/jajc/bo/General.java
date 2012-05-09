@@ -1,4 +1,4 @@
-package com.ngdata.bo;
+package com.ngdata.jajc.bo;
 
 public class General {
 	private String provider;

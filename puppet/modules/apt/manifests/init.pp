@@ -1,7 +1,7 @@
 class apt {
 
   include apt::params
-  
+
   Package {
     require => Exec["apt-get_update"]
   }
@@ -26,6 +26,10 @@ class apt {
     }
   }
 
+  package {$apt::params::keyring_package:
+    ensure => present,
+  }
+
   # ensure only files managed by puppet be present in this directory.
   file { "/etc/apt/sources.list.d":
     ensure  => directory,
@@ -42,7 +46,7 @@ class apt {
   }
 
   exec { "apt-get_update":
-    command => "/usr/bin/apt-get update",
+    command => "apt-get update",
     refreshonly => true,
   }
 }

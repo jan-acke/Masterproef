@@ -28,7 +28,7 @@
       	<groupId>org.codehaus.mojo</groupId>
       	<artifactId>exec-maven-plugin</artifactId>
       	<configuration>
-      		<mainClass>com.ngdata.Main</mainClass>
+      		<mainClass>com.ngdata.jajc.Main</mainClass>
       		
       	</configuration>
       	</plugin>

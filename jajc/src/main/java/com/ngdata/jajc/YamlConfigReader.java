@@ -1,4 +1,4 @@
-package com.ngdata;
+package com.ngdata.jajc;
 
 import java.io.File;
 
@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.Yaml;
 // TODO validate config file
 public class YamlConfigReader {
 
-	private static YAMLConfig config;
+	private static YamlConfig config;
 	
 	private YamlConfigReader() {
 	}
@@ -18,7 +18,7 @@ public class YamlConfigReader {
 	public static IConfig createYAMLConfig(String filename) {
 		try {
 			Yaml yaml = new Yaml();
-			config = yaml.loadAs(new FileInputStream(new File(filename)), YAMLConfig.class);
+			config = yaml.loadAs(new FileInputStream(new File(filename)), YamlConfig.class);
 		}
 		catch (FileNotFoundException ex) {
 			// TODO logger
