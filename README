@@ -1,7 +1,7 @@
 
 1. Clone
 2. Download a oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files
-3. In setup.yml:
+3. In jajc/setup.yml:
    a. Specify in the java section of the userConfig the filename of the file you just downloaded
    b. Set the provider (only byon works for now)
    c. Set the instances, in the case of byon you must set the hostnames (these must be resolvable), the number value will be ignored.
@@ -13,7 +13,8 @@ The roles are specified as puppet classes, you can find these by looking at the 
    d. Specify your lily repository credentials in the lily-section of the userConfig.
    e. You can add as many options as you want for the cdh3 services in their respective sections in userConfig, they will be set accordingly when the cluster starts.
    
-4. Create a tarball of the puppet/modules directory and place it in the jajc directory
+4. Create a tarball of the puppet/modules directory and place it in the jajc directory:
+   In the puppet directory: execute tar czf ../jajc/modules.tgz modules/
 
 5. In the jajc directory : execute "mvn exec:java"
 
