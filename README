@@ -1,50 +1,37 @@
 
-After installation you should download the java binary from http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.htmland place it in puppet/modules/java/files/.
-To be able to install lily-enterprise packages add the following to puppet/modules/lily/manifests/init.pp just below the repository class definition: 
-$user = <username>
-$password = <password>
-These are your Lily-enterprise credentials.
-Lily modules are untested, dont use them for now
+1. Clone
+2. Download a oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files
+3. In setup.yml:
+   a. Specify in the java section of the userConfig the filename of the file you just downloaded
+   b. Set the provider (only byon works for now)
+   c. Set the instances, in the case of byon you must set the hostnames (these must be resolvable), the number value will be ignored.
 
-Execute the following commands
-cd puppet
-tar czf ../jajc/modules.tgz modules/
-cd ../jajc
+Properties that are the same for all the instances in the  byon cluster can be specified in the byon-section of the providerSpecificInfo. You can override these properties in the options section of an instance.
 
-Now you have a modules.tgz file in the directory where the pom is.
+The roles are specified as puppet classes, you can find these by looking at the *.pp files in puppet/modules/../manifests.
 
-Define your setup in setup.yml, only byon works at the moment, make sure the hostnames are resolvable and each host has a correct /etc/hosts file. Make sure there is at least a cdh3::hadoop::namenode and a puppetmaster in the roles section. Other roles can be found in ../puppet/modules/cdh3/*.pp files. choose <role>::service to start the service, the hbase service class does not yet work.
+   d. Specify your lily repository credentials in the lily-section of the userConfig.
+   e. You can add as many options as you want for the cdh3 services in their respective sections in userConfig, they will be set accordingly when the cluster starts.
+   
+4. Create a tarball of the puppet/modules directory and place it in the jajc directory
 
-Execute mvn exec:java
-
+5. In the jajc directory : execute "mvn exec:java"
 
 After a while the build will be completed and puppet should run on the cluster.
-Some checks to quickly see if the agents are installing their configuration:
-ls /opt -> this should contain the jdk1.6.0_31 directory
-ls /etc/apt/sources.list.d/ -> this should contain cloudera.list
 
-If you chose the cdh3::hadoop::namenode::postinstall module you should be able to see the webinterface of the namenode on <hostname namenode>:50070
-
-Go to <hostname jobtracker>:50030 to check if the jobtracker and the tasktrackers are running
-
-Check if you can connect to the nodes by checking if you can use the zookeeper command line interface:
-/usr/lib/zookeeper/bin/zkCli.sh
-Type quit to leave the zookeeper CLI.
-
-Start HBasemaster and regionserver:
-/etc/init.d/hadoop-hbase-master start
-/etc/init.d/hadoop-hbase-regionserver start
-Go to <hostname hbasemaster>:60010 to check if the hbase master and the regionservers are running
+To see what puppet is doing and if everything is going ok, you can log in to a node of the cluster and tail -f /var/log/syslog, this is where you can see the progress of the puppet agent.
 
 
+If everything went smoothly the hadoop namenode, datanodes, jobtracker and tasktrackers as well as zookeeper and hbase should be up and running. A quick check of the webinterfaces for these services can confirm this.
+namenode:     http://<hostname-namenode>:50070
+jobtracker:   http://<hostname-jobtracker>:50030
+hbase-master: http://<hostname-hbasemaster>:60010
 
+Limitations:
+HBase requires a zookeeper quorum, so hbase-services will only start correctly if a quorum is available.
+Lily will not start automatically since it's dependent on HBase and Zookeeper.
+No rpm support
 
-Debugging:
-Log in to the puppetmaster node, kill both the puppet services (master and agent) and execute the following command:
-/opt/ruby/bin/puppet master --verbose --no-daemonize
-
-Log into another node, kill puppet process and execute:
-/opt/ruby/bin/puppet agent --verbose --no-daemonize
 
 
 CREDITS:
