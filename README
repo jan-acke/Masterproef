@@ -1,6 +1,19 @@
 
+
+
+
+
+
+
+
+
+
+
 1. Clone
-2. Download a oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files
+2. Download a oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files.
+
+Make sure you download the correct version: certain images on ec2 are 64bit only, some are 32bit, others support both.
+
 3. In jajc/setup.yml:
    a. Specify in the java section of the userConfig the filename of the file you just downloaded
    b. Set the provider (only byon works for now)

@@ -2,7 +2,7 @@
 <repository xmlns:conf="http://kauriproject.org/configuration"
             conf:inherit="deep">
 
-<% lilyZooKeeper.each do |name,value| -%>
+<% lilyRepository.each do |name,value| -%>
 <% if value.kind_of?(Array) %>
 <% value = value.join(",") %>
 <% end -%>

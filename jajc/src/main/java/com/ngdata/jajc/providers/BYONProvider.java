@@ -12,6 +12,7 @@ import org.jclouds.scriptbuilder.domain.Statement;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
@@ -62,9 +63,9 @@ public class BYONProvider extends AbstractProvider {
     				yaml.append("\n      credential_url: file://").append(credential_url);
     			else
     				yaml.append("\n      credential: ").append(credential);
-    			yaml.append("\n      tags:");
-    			for (String role : i.getRoles())
-    				yaml.append("\n        - " + role);
+    			yaml.append("\n      metadata:");
+    			yaml.append("\n         roles: ");
+    			yaml.append(Joiner.on(',').join(i.getRoles()));
     			yaml.append("\n");
     		}
     	}

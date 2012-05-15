@@ -2,12 +2,9 @@ package com.ngdata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import static org.jclouds.compute.reference.ComputeServiceConstants.Timeouts;
 
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.NodeMetadataBuilder;
 
-import com.google.common.collect.Iterables;
 import com.ngdata.jajc.puppetconfiguration.PuppetFile;
 
 import junit.framework.Test;
@@ -65,5 +62,6 @@ public class AppTest
         		assertEquals(false, s.matches(".*zookeeper.*"));	
         }
         
+        System.out.println("script complete timeout : " + (new Timeouts()).scriptComplete);
     }
 }

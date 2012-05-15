@@ -14,6 +14,7 @@ import com.ngdata.jajc.IConfig;
 public interface Provider {
 	
 	
+	
 	public Iterable<NodeMetadata> getNodes();
 		
 	/*

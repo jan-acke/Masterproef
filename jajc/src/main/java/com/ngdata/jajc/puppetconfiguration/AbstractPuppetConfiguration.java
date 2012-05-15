@@ -34,19 +34,14 @@ public abstract class AbstractPuppetConfiguration implements PuppetConfiguration
 	/*
 	 * @param This method uses regular expressions to find the nodes
 	 */
-	protected Iterable<NodeMetadata> getNodesByTag(final String simplifiedTagname)  {
+	protected Iterable<NodeMetadata> getNodesByRole(final String simplifiedTagname)  {
 		final String regex = ".*" + simplifiedTagname + ".*";
 		try {
 			return Iterables.filter(AbstractProvider.getInstance().getNodes(), new Predicate<NodeMetadata>() {
 				@Override
 				public boolean apply(NodeMetadata nm) {
-					//my first idea was :
-					//Iterator<String> it = nm.getTags().iterator();
-					//while ( it.hasNext() && !it.next().matches(simplifiedTagName)) { move iterator "pointer"}
-					//return it.hasNext();
-					//unfortunately it.next() moves the "pointer" so if the last item in the set matches the returnvalue will be false
 					//Naive but it's clear what we're doing :
-					for ( String tag : nm.getTags() ){
+					for ( String tag : AbstractProvider.extractRolesFromNode(nm) ){
 						if (tag.matches(regex))
 							return true;
 					}

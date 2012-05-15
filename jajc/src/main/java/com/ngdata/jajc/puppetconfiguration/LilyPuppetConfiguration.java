@@ -71,8 +71,9 @@ public class LilyPuppetConfiguration extends AbstractPuppetConfiguration {
 	
 	private Map<String,String> createLilyRepositoryProperties() {
 		Map<String,String> properties = getUserConfiguration("lilyRepository");
-		createNoOverwriteProperty(properties, "blobFileSystem", cdh3.getNamenode() + "/lily/blobs");
-		createOrOverwriteProperty(properties, "port", DEFAULT_LILY_PORT);
+		createOrOverwriteProperty(properties, "blobFileSystem", cdh3.getNamenode() + "/lily/blobs");
+		createNoOverwriteProperty(properties, "port", DEFAULT_LILY_PORT);
+		createNoOverwriteProperty(properties, "maxServerThreads", "35");
 		return properties;
 		
 	}

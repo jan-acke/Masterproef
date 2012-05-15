@@ -1,6 +1,11 @@
 package com.ngdata.jajc.providers;
 
 import java.util.Map;
+import java.util.Set;
+
+import org.jclouds.compute.domain.NodeMetadata;
+
+import com.google.common.collect.Sets;
 import com.ngdata.jajc.IConfig;
 import com.ngdata.jajc.exception.JaJcLogicalConfigException;
 import com.ngdata.jajc.exception.JajcException;
@@ -30,6 +35,14 @@ public abstract class AbstractProvider implements Provider {
 		return p;
 		
 	}
+	
+	
+	public static Set<String> extractRolesFromNode(NodeMetadata nm) {
+		String roles = nm.getUserMetadata().get("roles");
+		return Sets.newHashSet(roles.split(","));
+		
+	}
+		
 	
 	@Override
 	public IConfig getConfiguration() {

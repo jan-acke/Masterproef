@@ -27,17 +27,17 @@ public class Cdh3PuppetConfiguration extends AbstractPuppetConfiguration {
 	
 	public void build() throws JajcException {
 		
-		zookeeper = getNodesByTag("zookeeper");
+		zookeeper = getNodesByRole("zookeeper");
 		if ( Iterables.size(zookeeper) < 2 )
 			throw new JaJcLogicalConfigException("At least two zookeeper servers are required");
 		
-		if ( Iterables.size(getNodesByTag("jobtracker")) != 1 )
+		if ( Iterables.size(getNodesByRole("jobtracker")) != 1 )
 			throw new JaJcLogicalConfigException("One jobtracker server is required");
-		jobtracker = getNodesByTag("jobtracker").iterator().next().getHostname() + ":" + DEFAULT_JT_PORT;
+		jobtracker = getNodesByRole("jobtracker").iterator().next().getHostname() + ":" + DEFAULT_JT_PORT;
 					
-		if ( Iterables.size(getNodesByTag("namenode")) != 1 )
+		if ( Iterables.size(getNodesByRole("namenode")) != 1 )
 			throw new JaJcLogicalConfigException("One namenode server is required");
-		namenode = "hdfs://" + getNodesByTag("namenode").iterator().next().getHostname() + ":" + DEFAULT_NN_PORT;
+		namenode = "hdfs://" + getNodesByRole("namenode").iterator().next().getHostname() + ":" + DEFAULT_NN_PORT;
 		
 		Function<NodeMetadata,String> f = new Function<NodeMetadata,String>() {
 			@Override

@@ -44,15 +44,19 @@ public class Main
 			throw new com.ngdata.jajc.exception.JaJcLogicalConfigException("Need at least one puppetmaster" + configFileName);
 		
 		provider = AbstractProvider.createProvider(configuration);
-		nodes = provider.getNodes();		
+		nodes = provider.getNodes();
 		
 		pm = Iterables.filter(nodes,new Predicate<NodeMetadata>() {
 			@Override public boolean apply(NodeMetadata nd) {
-				return nd.getTags().contains("puppetmaster");
+				return AbstractProvider.extractRolesFromNode(nd).contains("puppetmaster");
 			} } ).iterator().next();
-
+		
+		
+		System.out.println("Installing necessary components for puppet");
 		initializeAllNodes();
+		System.out.println("Configuring puppet master");
 		initializePuppetMaster();
+		System.out.println("Starting puppet agents");
 		startPuppetAgents();
 		
 		provider.closeContext();
@@ -88,12 +92,13 @@ public class Main
 		sb.addStatement(Statements.exec("/usr/bin/gem install puppet --no-ri --no-rdoc")); // --install-dir /opt/gems"));
 		sb.addStatement(Statements.exec("groupadd puppet"));
 		sb.addStatement(Statements.exec("useradd -g puppet -G admin puppet"));
+		sb.addStatement(Statements.exec("mkdir -p /etc/puppet"));
 		//sb.addStatement(Statements.exec("echo \"export PATH=$PATH:/opt/gems/bin\" | tee -a /etc/environment")); //puppet in PATH
 		//sb.addStatement(Statements.exec("echo \"export JAVA_HOME=" + java_home + " | tee -a /etc/environment"));
 		sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet/puppet.conf", lines));
 		sb.addStatement(Statements.exec("apt-get install -y libopenssl-ruby"));
 		
-		System.out.println("Installing necessary components for puppet");
+		
 		//TODO log output
 		provider.runScriptOnNodesMatching(Predicates.<NodeMetadata>alwaysTrue(), sb);
 		
