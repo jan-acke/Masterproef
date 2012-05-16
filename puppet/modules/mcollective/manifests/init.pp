@@ -1,10 +1,8 @@
 
-class mcollective {
-}
-
-
 class mcollective::activemq {
-
+  require java
+  require mcollective::environment
+  
   $username = $mcollective::environment::username
   $password = $mcollective::environment::password
   
@@ -40,12 +38,37 @@ class mcollective::activemq {
   #refreshonly with service restart is ok.
   exec { "${destination}/bin/activemq restart":
     subscribe => File["${destination}/conf/activemq.xml"],
-    require => Class["java"],
     refreshonly => true,
+    require => Class["java"],
   }
   
 }
 
 class mcollective::server {
-  require mcollective::activemq
+  require java
+  require mcollective::environment
+
+  $username = $mcollective::environment::username
+  $password = $mcollective::environment::password
+  $identity = $::hostname
+  $stomphost = $mcollective::environment::stomphost
+  
+  package { "mcollective":
+    ensure => latest,
+  }
+
+  file { "/etc/mcollective/server.cfg":
+    owner => root,
+    group => root,
+    require => Package["mcollective"],
+    content => template("mcollective/server.erb"),
+  }
+
+  service { "mcollective":
+    hasrestart => true,
+    ensure => running,
+    require => File["/etc/mcollective/server.cfg"],
+  }
+
+
 }
