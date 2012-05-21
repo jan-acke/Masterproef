@@ -33,13 +33,19 @@ class mcollective::activemq {
     content => template("mcollective/activemq.xml.erb"),
   }
 
+
+}
+
+class mcollective::activemq::service {
+  require mcollective::activemq
+  
   #Might be better to copy the binary to /etc/init.d so we can use the puppet service resource type
   #however this would require extra configuration so it can find the activemq.xml file, for now using
   #refreshonly with service restart is ok.
+  
   exec { "${destination}/bin/activemq restart":
     subscribe => File["${destination}/conf/activemq.xml"],
     refreshonly => true,
-    require => Class["java"],
   }
   
 }
