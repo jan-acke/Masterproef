@@ -22,6 +22,7 @@ import com.ngdata.jajc.puppetconfiguration.Cdh3PuppetConfiguration;
 import com.ngdata.jajc.puppetconfiguration.ConfigurationManager;
 import com.ngdata.jajc.puppetconfiguration.JavaPuppetConfiguration;
 import com.ngdata.jajc.puppetconfiguration.LilyPuppetConfiguration;
+import com.ngdata.jajc.puppetconfiguration.MCollectiveConfiguration;
 import com.ngdata.jajc.puppetconfiguration.PuppetConfiguration;
 
 public class Main 
@@ -114,6 +115,7 @@ public class Main
 		
 		ConfigurationManager cm = ConfigurationManager.getConfigurationManager();
 		//TODO centralize module name !!
+		cm.add("mcollective", new MCollectiveConfiguration());
 		cm.add("java", new JavaPuppetConfiguration());
 		cm.add("cdh3", new Cdh3PuppetConfiguration());
 		cm.add("lily", new LilyPuppetConfiguration());
