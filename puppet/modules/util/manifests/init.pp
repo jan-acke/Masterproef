@@ -1,4 +1,5 @@
 
+class util {}
 
 define util::fact($value="", $ensure=present) {
   $filename = "/etc/mcollective/facts.yaml"
@@ -6,7 +7,7 @@ define util::fact($value="", $ensure=present) {
     default: { err ("unkown value for ensure: ${ensure}") }
     present: {
       exec {"remove_current":
-        command => "/bin/sed -i '/${name}/' ${filename}"
+        command => "/bin/sed -i '/${name}/d' ${filename}"
       }
       
       exec { "/bin/echo '${name}: ${value}' >> ${filename}":

@@ -1,8 +1,7 @@
 
 class cdh3::hadoop {
   require java
-  require cdh3::repository
-  require cdh3::environment
+  require cdh3
 
   #declaring classified variables as local variables for template usage since templates don't know classified variables and
   #we don't want to use scope.lookupvar("varname") for every variable

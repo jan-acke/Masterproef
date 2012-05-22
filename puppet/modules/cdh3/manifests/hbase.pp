@@ -1,7 +1,7 @@
 
 
 class cdh3::hbase {
-  require cdh3::hadoop
+  require cdh3
   
   #declaring classified variables as local variables for template usage since templates don't know classified variables and
   #we don't want to use scope.lookupvar("varname") for every variable
@@ -40,8 +40,7 @@ class cdh3::hbase::master {
     command => "hadoop fs -mkdir /hbase && hadoop fs -chown hbase /hbase",
     user => hdfs,
     refreshonly => true,
-    require => Package["hadoop-hbase"],
-#    subscribe => Exec["format_namenode"],
+    subscribe => Exec["format_namenode"],
 #    require => Service["stophbasemaster"],
   }
 }

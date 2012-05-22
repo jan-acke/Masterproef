@@ -11,6 +11,7 @@ public class JavaPuppetConfiguration extends AbstractPuppetConfiguration {
 	
 	private String filename;
 	private String path;
+	private String installOpenjdk;
 	
 	@Override
 	public String getModuleName() {
@@ -34,14 +35,17 @@ public class JavaPuppetConfiguration extends AbstractPuppetConfiguration {
 		
 		path = properties.get("install_path");
 		filename = properties.get("bin_filename");
+		installOpenjdk = properties.get("installopenjdk");
 		//TODO log this
 		if (path == null)
 			path = "/opt/jdk6";
-		if (filename == null)
+		if (filename == null && (installOpenjdk == null 
+				|| ( installOpenjdk !=null && installOpenjdk.equals("false"))))
 			throw new JajcException("The value of bin_filename must be set in the java part of the user configuration, it corresponds to the file in puppet/modules/java/files");
 		
 		content.addProperty("bin_filename", filename);
 		content.addProperty("install_path", path);
+		content.addProperty("installopenjdk", installOpenjdk);
 	}
 	
 	public String getPathName() {

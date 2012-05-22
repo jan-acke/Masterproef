@@ -98,10 +98,13 @@ public class PuppetFile {
 	
 	/*
 	 * Don't stringify arrays, but stringify something like ${this is an example}/still/part/of/the/example but 
-	 * don't stringify $zk_quorum
+	 * don't stringify $zk_quorum, also don't stringify true or false
 	 */
 	private String getValue(String value) {
-		if (value.indexOf('[') != -1 || (value.charAt(0) == '$' && value.charAt(1) != '{'))
+		if (value.indexOf('[') != -1 
+				|| (value.charAt(0) == '$' && value.charAt(1) != '{') 
+				|| "true".equals(value) 
+				|| "false".equals(value))
 			return value;
 		else 
 			return "\"" + value + "\"";

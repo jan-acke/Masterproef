@@ -18,9 +18,12 @@ public class ManifestBuilder {
 			lines.add("\n");
 			lines.add("node '" + nm.getHostname() + "' {");
 			StringBuilder sb = new StringBuilder(100);
-			for ( String tag : AbstractProvider.extractRolesFromNode(nm))
+			for ( String tag : AbstractProvider.extractRolesFromNode(nm)) {
 				if (!"puppetmaster".equals(tag))
 					sb.append(tag).append(",");
+				else
+					sb.append("mcollective::activemq::service,");
+			}
 			sb.deleteCharAt(sb.length()-1);
 			lines.add("include " + sb);
 			lines.add("}");

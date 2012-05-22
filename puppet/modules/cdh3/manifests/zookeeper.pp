@@ -1,9 +1,9 @@
 
 class cdh3::zookeeper {
   require java
-  require cdh3::environment
-  require cdh3::repository
-  fact { "zookeeper":
+  require cdh3
+  
+  util::fact { "zookeeper":
     value => "1",
     ensure => present,
   }

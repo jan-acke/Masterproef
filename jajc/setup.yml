@@ -1,13 +1,11 @@
 ---
-#andere mogelijke details : cluster naam, type: byon/ec2, ami, instance groepnaam (handig voor amazon console), defaults
-
 general:
   provider: byon
   clustername: jajc_test
 
 providerSpecificInfo:
-  #requires roles in instances, settings here can be overridden in instances
-  awsec2:
+  #requires roles in instances, settings here can be overridden in instance options
+n  awsec2:
     hardware: m1.large
     image: ami-da0cf8b3
     location: us-east-1
@@ -24,7 +22,6 @@ providerSpecificInfo:
     #credential_url: <path-to-file>
     sudo_password: vagrant
 
-
 instances:
   - options:  
       hardware: m1.small
@@ -34,7 +31,7 @@ instances:
       - cdh3::hadoop::tasktracker::service
       - cdh3::zookeeper
       - cdh3::hbase::regionserver
-      - lily::solr
+#      - lily::solr
 #      - lily::admin
     hostnames: 
       - puppet
@@ -49,7 +46,7 @@ instances:
       - cdh3::hadoop::jobtracker::service
       - cdh3::hbase::master
       - cdh3::zookeeper
-      - lily::server
+#      - lily::server
     hostnames: 
       - mail
 
@@ -72,9 +69,20 @@ userConfig:
   #  zookeeper: configures zoo.cfg
   #  hbase: configures hbase-site.cfg
 
+
+  #you need these to be able to connect to the stomp message queue on the 
+  #puppetmaster
+  mcollective:
+    username: "mcollective"
+    password: "marionette"
+
+  #some java settings, openjdk doesn't work yet
   java:
     bin_filename: "jdk-6u31-linux-i586.bin"
+    installopenjdk: "false"
 
+
+  #lily enterprise credentials
   lily:
-    username: "your lily repository username"
-    password: "your lily repository password"
+    username: "<your lily repository username>"
+    password: "<your lily repository password>"

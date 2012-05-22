@@ -1,7 +1,13 @@
 
 
+class cdh3 {
+  include util
+  require cdh3::repository
+  require mcollective::server::service
+  require cdh3::environment
+}
+
 class cdh3::repository {
-  require util
   include apt
   
   apt::key {"Cloudera":
