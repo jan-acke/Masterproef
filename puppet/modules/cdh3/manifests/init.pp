@@ -1,6 +1,7 @@
 
 
 class cdh3::repository {
+  require util
   include apt
   
   apt::key {"Cloudera":
