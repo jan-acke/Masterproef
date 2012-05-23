@@ -76,13 +76,17 @@ userConfig:
     username: "mcollective"
     password: "marionette"
 
-  #some java settings, openjdk doesn't work yet
+  #some java settings
   java:
-    bin_filename: "jdk-6u31-linux-i586.bin"
-    installopenjdk: "false"
+    installopenjdk: "true" #fetched as a .deb package
+    bin_filename: "jdk-6u31-linux-i586.bin" #if you don't use openjdk, the name of the binary in puppet/modules/java/file
 
+    #using openjdk: this must point to JAVA_HOME, so you must know where the .deb package will be installed
+    #for lucid it's /usr/lib/jvm/java-6-openjdk)
+    #not using openjdk: installation directory for java, this will also serve as JAVA_HOME
+    install_path: "/usr/lib/jvm/java-6-openjdk"
 
   #lily enterprise credentials
   lily:
-    username: "<your lily repository username>"
-    password: "<your lily repository password>"
+    username: "foo"
+    password: "bar"

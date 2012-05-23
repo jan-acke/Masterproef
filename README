@@ -4,7 +4,7 @@ This works only on ubuntu lucid boxes.
 
 1. Clone
 2. 
-   a. Download an oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files.
+   a. Download an oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files. If you're going to use Openjdk you can skip this step (2a).
    b. Download ActiveMQ from apache, place the tar.gz file in puppet/modules/mcollective/files/activemq.tgz, it must match this name for now.
 
 Make sure you download the correct version: certain images on ec2 are 64bit only, some are 32bit, others support both.
@@ -12,7 +12,7 @@ Make sure you download the correct version: certain images on ec2 are 64bit only
 
 
 3. jajc/setup.yml is the file that contains the configuration for the cluster
-   a. Specify in the java section of the userConfig the filename of the file you just downloaded eg: bin_filename: "jdk-6u31-linux-i586.bin"
+   a. If you're going to use openjdk set installopenjdk to "true" in the java section of the userConfig. If not, make sure you specify the filename of the file you just downloaded eg: bin_filename: "jdk-6u31-linux-i586.bin". In the case of openjdk you must set the install_path to the location of JAVA_HOME after installing the openjdk package (so you must know this in advance!)
    b. Set the provider
       * byon 
       	- fully supported and mcollective commands should work
@@ -20,7 +20,7 @@ Make sure you download the correct version: certain images on ec2 are 64bit only
 	- Properties that are the same for all the instances can be specified in the byon section of providerSpecificInfo. You can override them in options section of an instance.
 
       * aws-ec2
-        - the java binary and activemq.tgz will be uploaded to the puppetmaster, this can take very long.
+        - the java binary (if you don't use openjdk) and activemq.tgz will be uploaded to the puppetmaster, this can take very long.
 	- mcollective is unsupported since we use internal hostnames on ec2
 	- You don't need to provide hostnames in the instances section, the number value can be used to create multiple machines with the specified roles.
 	- In the awsec2 section of providerSpecificInfo the following values must be set : securtity_group, keypair_name, accesskeyid, secretkey, private_key, this last one is the content of the private keyfile corresponding with the keypair_name, see the setupec2.yml example file.
@@ -42,7 +42,7 @@ After a while the build will be completed and puppet should run on the cluster.
 To see what puppet is doing and if everything is going ok, you can log in to a node of the cluster and tail -f /var/log/syslog, this is where you can see the progress of the puppet agent.
 
 
-After the puppet run is complete (there shouldn't have been any errors) it might be possible that all the services have started correctly since most services keep trying to start. This is no guarantee and it's usually better to execute the mcollective stopall.sh script in the scripts directory, this will stop all the services. Using startall.sh you can start the services. Make sure the read the README in the scripts directory, it contains information on how to setup the mcollective client, used to sent messages to the cluster, on your computer.
+After the puppet run is complete (there shouldn't have been any errors) it might be possible that all the services have started correctly since most services keep retrying to start. This is no guarantee and it's usually better to execute the mcollective stopall.sh script in the scripts directory, this will stop all the services. Using startall.sh you can start the services. Make sure the read the README in the scripts directory, it contains information on how to setup the mcollective client, used to sent messages to the cluster, on your computer.
 
 
 
