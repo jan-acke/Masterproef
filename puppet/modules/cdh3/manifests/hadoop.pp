@@ -3,8 +3,7 @@ class cdh3::hadoop {
   require java
   require cdh3
 
-  #declaring classified variables as local variables for template usage since templates don't know classified variables and
-  #we don't want to use scope.lookupvar("varname") for every variable
+  #make variables local so templates can use them
   $hdfs = $cdh3::environment::hdfs
   $mapred = $cdh3::environment::mapred
   $core = $cdh3::environment::core
@@ -72,6 +71,7 @@ class cdh3::hadoop {
   
   exec { "update-alternatives":
     subscribe => File[$location],
+    refreshonly => true,
     command => "update-alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /etc/hadoop-0.20/conf.mine/ 50",
   }
   
@@ -79,7 +79,8 @@ class cdh3::hadoop {
 
 class cdh3::hadoop::namenode {
   require cdh3::hadoop
-
+  include cdh3::hadoop::namenode::postinstall
+  
   package { "hadoop-0.20-namenode":
     ensure => latest,
   }
@@ -93,6 +94,8 @@ class cdh3::hadoop::namenode {
   }
 }
 
+
+#namenode can be safely started since it has no dependencies
 class cdh3::hadoop::namenode::service {
   require cdh3::hadoop::namenode
   service { "hadoop-0.20-namenode":
@@ -101,6 +104,7 @@ class cdh3::hadoop::namenode::service {
   }
 }
 
+#formats the namenode and creates some directories in the hdfs
 class cdh3::hadoop::namenode::postinstall {
   require cdh3::hadoop::namenode::service
   exec { "hadoop fs -mkdir /tmp && hadoop fs -chmod 1777 /tmp":
@@ -119,6 +123,7 @@ class cdh3::hadoop::namenode::postinstall {
 
 class cdh3::hadoop::datanode {
   require cdh3::hadoop
+  include cdh3::hadoop::datanode::service
   package { "hadoop-0.20-datanode":
     ensure => latest,
   }
@@ -142,16 +147,11 @@ class cdh3::hadoop::secondarynamenode {
 
 class cdh3::hadoop::jobtracker {
   require cdh3::hadoop
-
+  include cdh3::hadoop::jobtracker::service
   package { "hadoop-0.20-jobtracker":
     ensure => latest,
   }
 
-  # service { "stopjobtracker":
-  #   ensure => stopped,
-  #   name => "hadoop-0.20-jobtracker",
-  #   require => Package["hadoop-0.20-jobtracker"],
-  # }
 }
 
 
@@ -168,16 +168,11 @@ class cdh3::hadoop::jobtracker::service {
 
 class cdh3::hadoop::tasktracker {
   require cdh3::hadoop
-
+  include cdh3::hadoop::tasktracker::service
   package { "hadoop-0.20-tasktracker":
     ensure => latest,
   }
 
-  # service { "stoptasktracker":
-  #   ensure => stopped,
-  #   name => "hadoop-0.20-tasktracker",
-  #   require => Package["hadoop-0.20-tasktracker"],
-  # }
 }
 
 

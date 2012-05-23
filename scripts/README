@@ -1,0 +1,37 @@
+
+The scripts in this directory have the following requirements:
+
+You must have installed the mcollective-client, available as a package from 
+http://apt.puppetlabs.com or in ubuntu >natty built-in:
+apt-get install mcollective-client
+If it asks for the hostname of the stompserver, fill in the hostname of 
+the puppetmaster.
+
+You must have correcty configured the /etc/mcollective/client.cfg file, 
+most notably stomp.host, username and password must be set, see setup.yml
+for those values, stomp.host is the hostname of the puppetmaster.
+
+You must also have installed the mcollective service agent plugin from:
+https://github.com/puppetlabs/mcollective-plugins/tree/master/agent/service/ .
+Copy the files to the plugin directory (defined by libdir in 
+/etc/mcollective/client.cfg, default on ubuntu: 
+/usr/share/mcollective/plugins/mcollective). Put each file in the corresponding
+directory, you might have to create the spec directory.
+
+
+
+Some extra info about the commands:
+mco service -C cdh3::zookeeper hadoop-zookeeper-server start
+this consists of the following:
+* service: we use the service plugin
+* -C option filters the nodes based on puppet classes, in this case 
+  only nodes with the cdh3::zookeeper puppetclass will be accessed
+* name of the service
+* command of the service (can be (re)start,stop or status)
+
+
+Instead of -C you can filter nodes based on facts using -F, the current setup 
+doesn't use these.
+
+To get an overview of all the classes and facts on a certain node:
+mco inventory <hostname>

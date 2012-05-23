@@ -1,6 +1,7 @@
 
 class lily::solr {
-  require lily::repository
+  require lily
+  include lily::solr::service
   package { "lily-solr-3.5":
     ensure => latest,
   }

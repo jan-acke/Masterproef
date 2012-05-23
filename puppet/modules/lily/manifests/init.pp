@@ -1,5 +1,11 @@
 
 
+class lily {
+  require lily::environment
+  require lily::repository
+  require mcollective::server::service
+}
+
 class lily::repository {
   include apt
   require lily::environment

@@ -5,7 +5,7 @@ general:
 
 providerSpecificInfo:
   #requires roles in instances, settings here can be overridden in instance options
-n  awsec2:
+  awsec2:
     hardware: m1.large
     image: ami-da0cf8b3
     location: us-east-1
@@ -27,11 +27,11 @@ instances:
       hardware: m1.small
       number: '2'
     roles: 
-      - cdh3::hadoop::datanode::service
-      - cdh3::hadoop::tasktracker::service
+      - cdh3::hadoop::datanode
+      - cdh3::hadoop::tasktracker
       - cdh3::zookeeper
       - cdh3::hbase::regionserver
-#      - lily::solr
+      - lily::solr
 #      - lily::admin
     hostnames: 
       - puppet
@@ -42,11 +42,11 @@ instances:
       hardware: m1.large
     roles: 
       - puppetmaster
-      - cdh3::hadoop::namenode::postinstall
-      - cdh3::hadoop::jobtracker::service
+      - cdh3::hadoop::namenode
+      - cdh3::hadoop::jobtracker
       - cdh3::hbase::master
       - cdh3::zookeeper
-#      - lily::server
+      - lily::server
     hostnames: 
       - mail
 

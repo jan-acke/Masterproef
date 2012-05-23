@@ -3,7 +3,7 @@
 class cdh3::hbase {
   require cdh3
   
-  #declaring classified variables as local variables for template usage since templates don't know classified variables and
+  #declaring variables as local variables for template usage since templates don't know variables and
   #we don't want to use scope.lookupvar("varname") for every variable
   $hbase = $cdh3::environment::hbase
   
@@ -36,26 +36,16 @@ class cdh3::hbase::master {
 
   }
 
+  #we can safely add this 'subscribe' since the hbase master must
+  #run on the namenode
   exec { "createHbasedirs":
     command => "hadoop fs -mkdir /hbase && hadoop fs -chown hbase /hbase",
     user => hdfs,
     refreshonly => true,
     subscribe => Exec["format_namenode"],
-#    require => Service["stophbasemaster"],
   }
 }
 
-# class cdh3::hbase::master::service {
-#   require cdh3::hbase::master
-#   require cdh3::hadoop::jobtracker::service
-#   require cdh3::zookeeper::service
-#   service { "hadoop-hbase-master":
-#     ensure => running,
-#     hasrestart => true,
-#     require => Service["hadoop-0.20-namenode"],
-#     subscribe => File["/etc/hbase/conf/hbase-site.xml"],
-#   }
-# }
 
 class cdh3::hbase::regionserver {
   require cdh3::hbase
@@ -64,12 +54,3 @@ class cdh3::hbase::regionserver {
     ensure => latest,
   }
 }
-
-# class cdh3::hbase::regionserver::service {
-#   require cdh3::hbase::regionserver
-#   service { "hadoop-hbase-regionserver":
-#     ensure => running,
-#     hasrestart => true,
-#     subscribe => File["/etc/hbase/conf/hbase-site.xml"],
-#   }
-# }

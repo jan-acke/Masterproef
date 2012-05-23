@@ -1,21 +1,21 @@
 
 class lily::server {
-  require lily::environment
-  require lily::repository
+  require lily
+  
+  include lily::server::service
+  
   package { "lily":
     ensure => latest, #or use a specific version eg: ensure => "1.1.2-2"
     
   }
 
-  #hashes used in configuration files
+  #redeclare variables so we can use them in templates
   $lilyHbase = $lily::environment::lilyHbase
   $lilyZooKeeper = $lily::environment::lilyZooKeeper
   $lilyMapReduce = $lily::environment::lilyMapReduce
   $lilyRepository = $lily::environment::lilyRepository
 
 
-
-  
   $location = "/usr/lib/lily/conf"
 
   #Lily configuration files are downloaded with the package and change when newer versions
@@ -23,10 +23,8 @@ class lily::server {
   file { "${location}":
     ensure => directory,
     require => Package["lily"],
-    #source => "puppet:///modules/lily/lily-server/conf"
     owner => root,
     group => root,
-    #recurse => true
   }
 
   file { "${location}/general/hbase.xml":
