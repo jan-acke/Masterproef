@@ -1,29 +1,35 @@
 
 
-
-
-
-
-
-
-
-
+This works only on ubuntu lucid boxes.
 
 1. Clone
-2. Download a oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files.
+2. 
+   a. Download an oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files.
+   b. Download ActiveMQ from apache, place the tar.gz file in puppet/modules/mcollective/files/activemq.tgz, it must match this name for now.
 
 Make sure you download the correct version: certain images on ec2 are 64bit only, some are 32bit, others support both.
 
-3. In jajc/setup.yml:
-   a. Specify in the java section of the userConfig the filename of the file you just downloaded
-   b. Set the provider (only byon works for now)
-   c. Set the instances, in the case of byon you must set the hostnames (these must be resolvable), the number value will be ignored.
 
-Properties that are the same for all the instances in the  byon cluster can be specified in the byon-section of the providerSpecificInfo. You can override these properties in the options section of an instance.
 
-The roles are specified as puppet classes, you can find these by looking at the *.pp files in puppet/modules/../manifests.
+3. jajc/setup.yml is the file that contains the configuration for the cluster
+   a. Specify in the java section of the userConfig the filename of the file you just downloaded eg: bin_filename: "jdk-6u31-linux-i586.bin"
+   b. Set the provider
+      * byon 
+      	- fully supported and mcollective commands should work
+      	- In the instances section you must provide the hostnames of the nodes, see the example, the number value will be ignored.
+	- Properties that are the same for all the instances can be specified in the byon section of providerSpecificInfo. You can override them in options section of an instance.
 
-   d. Specify your lily repository credentials in the lily-section of the userConfig.
+      * aws-ec2
+        - the java binary and activemq.tgz will be uploaded to the puppetmaster, this can take very long.
+	- mcollective is unsupported since we use internal hostnames on ec2
+	- You don't need to provide hostnames in the instances section, the number value can be used to create multiple machines with the specified roles.
+	- In the awsec2 section of providerSpecificInfo the following values must be set : securtity_group, keypair_name, accesskeyid, secretkey, private_key, this last one is the content of the private keyfile corresponding with the keypair_name, see the setupec2.yml example file.
+
+
+   c. The roles are specified as puppet classes, at the moment these are available:
+      puppetmaster, cdh3::hadoop::namenode, cdh3::hadoop::datanode, cdh3::zookeeper, cdh3::hbase::master, cdh3::hbase::regionserver, cdh3::hadoop::jobtracker, cdh3::hadoop::tasktracker, lily::server, lily::solr. Make sure you specify at least one puppetmaster, a namenode, a jobtracker and 2 zookeepers.
+
+   d. Specify your lily repository credentials in the lily-section of the userConfig, if you don't use lily, you can give bogus info here, they are still required though.
    e. You can add as many options as you want for the cdh3 services in their respective sections in userConfig, they will be set accordingly when the cluster starts.
    
 4. Create a tarball of the puppet/modules directory and place it in the jajc directory:
@@ -36,15 +42,8 @@ After a while the build will be completed and puppet should run on the cluster.
 To see what puppet is doing and if everything is going ok, you can log in to a node of the cluster and tail -f /var/log/syslog, this is where you can see the progress of the puppet agent.
 
 
-If everything went smoothly the hadoop namenode, datanodes, jobtracker and tasktrackers as well as zookeeper and hbase should be up and running. A quick check of the webinterfaces for these services can confirm this.
-namenode:     http://<hostname-namenode>:50070
-jobtracker:   http://<hostname-jobtracker>:50030
-hbase-master: http://<hostname-hbasemaster>:60010
+After the puppet run is complete (there shouldn't have been any errors) it might be possible that all the services have started correctly since most services keep trying to start. This is no guarantee and it's usually better to execute the mcollective stopall.sh script in the scripts directory, this will stop all the services. Using startall.sh you can start the services. Make sure the read the README in the scripts directory, it contains information on how to setup the mcollective client, used to sent messages to the cluster, on your computer.
 
-Limitations:
-HBase requires a zookeeper quorum, so hbase-services will only start correctly if a quorum is available.
-Lily will not start automatically since it's dependent on HBase and Zookeeper.
-No rpm support
 
 
 

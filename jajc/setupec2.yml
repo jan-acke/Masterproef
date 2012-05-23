@@ -1,0 +1,76 @@
+---
+#andere mogelijke details : cluster naam, type: byon/ec2, ami, instance groepnaam (handig voor amazon console), defaults
+
+general:
+  provider: awsec2
+  clustername: jajc_test
+
+providerSpecificInfo:
+  #requires roles in instances, settings here can be overridden in instances
+  awsec2:
+    username: ubuntu
+    hardware: m1.large
+    image: ami-da0cf8b3
+    location: us-east-1
+    security_group: evert-upgrade-3
+    keypair_name: jacke
+    accesskeyid: "AKI..."
+    secretkey: "Sx2..."
+    private_key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      wAUC6TM68dVbAwG5ggML2sdq6SE8trage/sbfJt1jSkziycn1drHXWAt1tsOXvauaw08lGYXgMUw
+      ...
+      5BN7Y4/NOmyG1XQ0ajFmaIgvoufedbfipVDoIBJ4OV/GrG74iinzd6njbVqgpAQRhrJJPz4NcD//
+      S1ZZzeJZS+cI7Pbm3r4o51b7VWyZRB3r9hOHbdYX2788mVuo4YVqlARc2SWSBNZgVS8mYp0=
+      -----END RSA PRIVATE KEY-----
+
+  #requires roles and hostnames in instances, settings here can be overridden in instances
+  byon:
+    os_arch: x86
+    os_family: ubuntu
+    os_description: ubuntu
+    os_version: '10.10'
+    username: vagrant
+    credential: vagrant #can also be RSA key
+    # OR
+    #credential_url: <path-to-file>
+    sudo_password: vagrant
+
+
+instances:
+  - options:  
+      number: '1'
+    roles: 
+      - puppetmaster
+      - cdh3::hadoop::namenode::postinstall
+      - cdh3::hadoop::jobtracker::service
+      - cdh3::zookeeper
+      - cdh3::hbase::master
+      - lily::server
+  - options:
+      number: '2'
+      hardware: m1.small
+    roles: 
+      - cdh3::hadoop::datanode::service
+      - cdh3::hadoop::tasktracker::service
+      - cdh3::zookeeper
+      - cdh3::hbase::regionserver
+      - lily::solr
+
+userConfig:
+  hdfs:  #configures hdfs-site.xml
+    dfs.permissions: "false"
+    dfs.replication: "1"
+    io.file.buffer.size: "65536"
+    dfs.datanode.handler.count: "6"
+
+  java:
+    bin_filename: "jdk-6u32-linux-x64.bin" #this image required a x64 java .bin
+
+  lily:
+    username: "foo"
+    password: "bar"
+
+  mcollective:
+    username: "mcollective"
+    password: "marionette"
