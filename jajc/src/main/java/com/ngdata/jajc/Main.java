@@ -127,7 +127,7 @@ public class Main
 		SshClient ssh = AbstractProvider.getInstance().getSshClient(pm);
 		try {
 			ssh.connect();
-			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/modules.tgz")));
+			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File(System.getProperty("user.dir"), "modules.tgz")));
 			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
 			for ( String module : pcs.keySet() ) {
 				ssh.put("/tmp/environment.pp",Payloads.newStringPayload( pcs.get(module).getEnvironmentContent()));
