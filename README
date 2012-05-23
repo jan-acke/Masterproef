@@ -27,7 +27,7 @@ Make sure you download the correct version: certain images on ec2 are 64bit only
 
 
    c. The roles are specified as puppet classes, at the moment these are available:
-      puppetmaster, cdh3::hadoop::namenode, cdh3::hadoop::datanode, cdh3::zookeeper, cdh3::hbase::master, cdh3::hbase::regionserver, cdh3::hadoop::jobtracker, cdh3::hadoop::tasktracker, lily::server, lily::solr. Make sure you specify at least one puppetmaster, a namenode, a jobtracker and 2 zookeepers.
+      puppetmaster, cdh3::hadoop::namenode, cdh3::hadoop::datanode, cdh3::zookeeper, cdh3::hbase::master, cdh3::hbase::regionserver, cdh3::hadoop::jobtracker, cdh3::hadoop::tasktracker, lily::server, lily::solr. Make sure you specify at least one puppetmaster, a namenode, a jobtracker and a zookeeper.
 
    d. Specify your lily repository credentials in the lily-section of the userConfig, if you don't use lily, you can give bogus info here, they are still required though.
    e. You can add as many options as you want for the cdh3 services in their respective sections in userConfig, they will be set accordingly when the cluster starts.
