@@ -3,6 +3,7 @@ package com.ngdata.jajc.providers;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.jclouds.compute.domain.NodeMetadata;
 
 import com.google.common.collect.Sets;
@@ -11,6 +12,8 @@ import com.ngdata.jajc.exception.JaJcLogicalConfigException;
 import com.ngdata.jajc.exception.JajcException;
 
 public abstract class AbstractProvider implements Provider {
+	
+	static Logger log = Logger.getLogger(AbstractProvider.class.getName());
 	
 	private IConfig configuration;
 	private static AbstractProvider p;
@@ -63,9 +66,10 @@ public abstract class AbstractProvider implements Provider {
     	String value;
     	try {
     		value = higherPriority.get(key) == null ? lowerPriority.get(key) : higherPriority.get(key);
-    		//catching errors in case integer values are used in the configuration file TODO log this
+    		//catching errors in case integer values are used in the configuration file
     	} catch (ClassCastException ex){
     		value = "" + higherPriority.get(key) == null ? lowerPriority.get(key) : higherPriority.get(key);
+    		log.warn("Invalid property in userconfiguration for key: " + key + " . Did you forgot the \"\"");
     	}
     	if (value == null && required)
     		throw new JaJcLogicalConfigException("Missing " + key + " option");

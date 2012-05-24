@@ -16,6 +16,7 @@ public class LilyPuppetConfiguration extends AbstractPuppetConfiguration {
 	
 	public void build() throws JajcException {
 		cdh3 = (Cdh3PuppetConfiguration) ConfigurationManager.getConfigurationManager().getConfiguration("cdh3");
+		
 		if (cdh3 == null)
 			throw new JajcException("Cdh3PuppetConfiguration was not initialized");
 		PuppetFile pf = new PuppetFile(getModuleName(),"environment");

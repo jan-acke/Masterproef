@@ -27,8 +27,8 @@ public class ConfigurationManager {
 		configs = new HashMap<String,PuppetConfiguration>();
 	}
 	
-	public ConfigurationManager add(String name, PuppetConfiguration pc){
-		configs.put(name,pc);
+	public ConfigurationManager add(PuppetConfiguration pc){
+		configs.put(pc.getModuleName(),pc);
 		return this;
 	}
 	

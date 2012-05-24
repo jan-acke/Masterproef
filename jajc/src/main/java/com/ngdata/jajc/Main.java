@@ -1,11 +1,15 @@
 package com.ngdata.jajc;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.jclouds.compute.RunScriptOnNodesException;
+import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.io.Payloads;
 import org.jclouds.scriptbuilder.ScriptBuilder;
@@ -28,6 +32,8 @@ import com.ngdata.jajc.puppetconfiguration.PuppetConfiguration;
 public class Main 
 {	
 	
+	static Logger log = Logger.getLogger(Main.class.getName());
+	
 	private Iterable<NodeMetadata> nodes;
 	private NodeMetadata pm;
 	private Provider provider;
@@ -47,17 +53,18 @@ public class Main
 		provider = AbstractProvider.createProvider(configuration);
 		nodes = provider.getNodes();
 		
+		
 		pm = Iterables.filter(nodes,new Predicate<NodeMetadata>() {
 			@Override public boolean apply(NodeMetadata nd) {
 				return AbstractProvider.extractRolesFromNode(nd).contains("puppetmaster");
 			} } ).iterator().next();
+		log.debug("Puppet master: " + pm.getHostname());
 		
-		
-		System.out.println("Installing necessary components for puppet");
+		log.info("Installing necessary components for puppet");
 		initializeAllNodes();
-		System.out.println("Configuring puppet master");
+		log.info("Configuring puppet master");
 		initializePuppetMaster();
-		System.out.println("Starting puppet agents");
+		log.info("Starting puppet agents");
 		startPuppetAgents();
 		
 		provider.closeContext();
@@ -65,8 +72,13 @@ public class Main
 	}
 	
 	private void startPuppetAgents() throws RunScriptOnNodesException, JajcException {
-		AbstractProvider.getInstance().runScriptOnNodesMatching(Predicates.<NodeMetadata>alwaysTrue(), 
+		Map<? extends NodeMetadata, ExecResponse> resp = AbstractProvider.getInstance().runScriptOnNodesMatching(Predicates.<NodeMetadata>alwaysTrue(), 
 				Statements.exec("export JAVA_HOME=" + java_home + " && /var/lib/gems/1.8/bin/puppet agent"));
+		
+		log.debug("Results of starting the puppet agents on all the nodes:");
+		for (NodeMetadata nm : resp.keySet()){
+				log.debug(nm.getHostname() + " : " + resp.get(nm).getExitStatus());
+		}
 		
 	}
 
@@ -83,7 +95,8 @@ public class Main
 		lines.add("ssldir = /var/lib/puppet/ssl");
 		lines.add("rundir = /var/run/puppet");
 		lines.add("server = " + pm.getHostname());
-		lines.add("pluginsync = true");
+		//lines.add("listen = true"); //support for puppet kick
+		//lines.add("pluginsync = true");
 		
 		//Script to run
 		ScriptBuilder sb = new ScriptBuilder();
@@ -94,18 +107,19 @@ public class Main
 		sb.addStatement(Statements.exec("groupadd puppet"));
 		sb.addStatement(Statements.exec("useradd -g puppet -G admin puppet"));
 		sb.addStatement(Statements.exec("mkdir -p /etc/puppet"));
-		//sb.addStatement(Statements.exec("echo \"export PATH=$PATH:/opt/gems/bin\" | tee -a /etc/environment")); //puppet in PATH
-		//sb.addStatement(Statements.exec("echo \"export JAVA_HOME=" + java_home + " | tee -a /etc/environment"));
 		sb.addStatement(Statements.createOrOverwriteFile("/etc/puppet/puppet.conf", lines));
 		sb.addStatement(Statements.exec("apt-get install -y libopenssl-ruby"));
 		
 		
-		//TODO log output
-		provider.runScriptOnNodesMatching(Predicates.<NodeMetadata>alwaysTrue(), sb);
+		Map<? extends NodeMetadata, ExecResponse> resp = provider.runScriptOnNodesMatching(Predicates.<NodeMetadata>alwaysTrue(), sb);
+		log.debug("Results of installing puppet on the nodes in the cluster:");
+		for (NodeMetadata nm : resp.keySet()){
+			log.debug(nm.getHostname() + " : " + resp.get(nm).getExitStatus());
+		}
 		
 	}
 	
-	private void initializePuppetMaster() throws JajcException {
+	private void initializePuppetMaster() throws JajcException, IOException {
 		ScriptBuilder master = new ScriptBuilder();
 		master.addStatement(Statements.exec("mkdir -p /etc/puppet/manifests"));
 		master.addStatement(Statements.createOrOverwriteFile("/etc/puppet/manifests/site.pp", ManifestBuilder.createPuppetManifest(nodes)));
@@ -114,26 +128,47 @@ public class Main
 					
 		
 		ConfigurationManager cm = ConfigurationManager.getConfigurationManager();
-		//TODO centralize module name !!
-		cm.add("mcollective", new MCollectiveConfiguration());
-		cm.add("java", new JavaPuppetConfiguration());
-		cm.add("cdh3", new Cdh3PuppetConfiguration());
-		cm.add("lily", new LilyPuppetConfiguration());
+		cm.add(new MCollectiveConfiguration());
+		cm.add(new JavaPuppetConfiguration());
+		cm.add(new Cdh3PuppetConfiguration());
+		cm.add(new LilyPuppetConfiguration());
 		cm.build();
 		Map<String,PuppetConfiguration> pcs = cm.getConfigurations();
-		java_home = ((JavaPuppetConfiguration) cm.getConfigurations().get("java")).getPathName();
+		JavaPuppetConfiguration jpc = (JavaPuppetConfiguration) cm.getConfigurations().get("java");
+		java_home = jpc.getPathName();
+		log.debug("JAVA_HOME set to " + java_home);
 		
+		log.debug("Creating /tmp/modules.tgz");
+		String moduleTgzLocation = "/tmp/modules.tgz";
+		Util.createTgz("../puppet/modules" , moduleTgzLocation);
 		
 		SshClient ssh = AbstractProvider.getInstance().getSshClient(pm);
+		
 		try {
 			ssh.connect();
-			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File("/home/jacke/Documents/eindwerk/Masterproef/jajc/modules.tgz")));
-			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
+			log.debug("Transferring modules.tgz");
+			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File(moduleTgzLocation)));
+			log.debug("Unpacking modules.tgz");
+			ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/");
+			
+			if (jpc.getBinFilename() != null) {
+				log.debug("Transferring java binary: " + jpc.getBinFilename());
+				ssh.put("/tmp/java_binary",Payloads.newFilePayload(new File(jpc.getBinFilename())));
+				ssh.exec("sudo mv /tmp/java_binary /etc/puppet/modules/java/files/" + jpc.getBinFilename());
+			}
+			
+			log.debug("Transferring ActiveMQ .tgz file");
+			ssh.put("/tmp/activemq.tgz",Payloads.newFilePayload(new File("activemq.tgz")));
+			ssh.exec("mv /tmp/activemq.tgz /etc/puppet/modules/mcollective/files/activemq.tgz");
+			
+			
+			log.debug("Transferring the generated environment.pp files");
 			for ( String module : pcs.keySet() ) {
+				log.debug("Installing environment.pp for " + module + " module");
 				ssh.put("/tmp/environment.pp",Payloads.newStringPayload( pcs.get(module).getEnvironmentContent()));
 				ssh.exec("sudo cp /tmp/environment.pp /etc/puppet/modules/" + module +"/manifests/");
 			}
-			System.out.println(ssh.exec("sudo /var/lib/gems/1.8/bin/puppet master"));
+			log.debug("Starting Puppet Master  (exitcode: " + ssh.exec("sudo /var/lib/gems/1.8/bin/puppet master") + ")");
 			
 		}
 		finally {
@@ -146,6 +181,5 @@ public class Main
 		new Main("setup.yml");
 		
     }
-    
     
 }

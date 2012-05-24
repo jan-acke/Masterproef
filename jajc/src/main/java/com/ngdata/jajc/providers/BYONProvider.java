@@ -8,6 +8,7 @@ import org.jclouds.compute.RunScriptOnNodesException;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadataBuilder;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.scriptbuilder.domain.Statement;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
@@ -70,8 +71,6 @@ public class BYONProvider extends AbstractProvider {
     		}
     	}
 
-		//byonProps.setProperty("byon.endpoint", "file:///home/jacke/Documents/eindwerk/Masterproef/jajc/nodes-byon.yml");
-    	//System.out.println(yaml);
     	byonProps.setProperty("byon.nodes", yaml.toString());
     	context = new ComputeServiceContextFactory().createContext("byon","foo","bar",
 				ImmutableSet.<Module> of (new SshjSshClientModule() ) , byonProps);
@@ -104,7 +103,7 @@ public class BYONProvider extends AbstractProvider {
 
 	@Override
 	public SshClient getSshClient(NodeMetadata node) {
-		return context.utils().sshForNode().apply(NodeMetadataBuilder.fromNodeMetadata(node).build());
+		return context.utils().sshForNode().apply(node);
 		
 	}
 

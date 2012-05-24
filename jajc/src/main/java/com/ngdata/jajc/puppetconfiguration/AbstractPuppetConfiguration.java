@@ -2,6 +2,9 @@ package com.ngdata.jajc.puppetconfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
+
+
+import org.apache.log4j.Logger;
 import org.jclouds.compute.domain.NodeMetadata;
 
 import com.google.common.base.Predicate;
@@ -11,14 +14,18 @@ import com.ngdata.jajc.providers.AbstractProvider;
 
 
 public abstract class AbstractPuppetConfiguration implements PuppetConfiguration {
-
+	
+	private static Logger log = Logger.getLogger(AbstractPuppetConfiguration.class.getName());	
+	
 	public AbstractPuppetConfiguration()  {
 	
 	}
 	/*
-	 * Use this to override user-defined settings
+	 * Use this to override user-defined settings, log a warning for the user
 	 */
 	protected <T> void createOrOverwriteProperty(Map<String,T> properties, String name, T value) {
+		if (properties.get(name) != null)
+			log.warn("Current value for " + name + " property (" + properties.get(name) + ") will be overridden by " + value);
 		properties.put(name, value);
 	}
 	
@@ -27,8 +34,9 @@ public abstract class AbstractPuppetConfiguration implements PuppetConfiguration
 	 * @param Map in which to add the key and value if the key doesn't exist
 	 */
 	protected <T> void createNoOverwriteProperty(Map<String,T> properties, String name, T value) {
-		if (properties.get(name) == null)
+		if (properties.get(name) == null){
 			properties.put(name, value);
+		}
 	}
 	
 	/*
@@ -63,7 +71,7 @@ public abstract class AbstractPuppetConfiguration implements PuppetConfiguration
 		try {
 			tmp = AbstractProvider.getInstance().getConfiguration().getUserConfig().get(key);
 		} catch (JajcException e) {
-			e.printStackTrace();
+			log.debug("No user-configuration found for " + key + ". Created an empty properties Map");
 		}
 		if ( tmp == null)
 			return new HashMap<String,String>();

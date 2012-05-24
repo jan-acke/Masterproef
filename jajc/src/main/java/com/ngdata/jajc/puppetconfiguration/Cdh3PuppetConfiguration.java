@@ -28,8 +28,8 @@ public class Cdh3PuppetConfiguration extends AbstractPuppetConfiguration {
 	public void build() throws JajcException {
 		
 		zookeeper = getNodesByRole("zookeeper");
-		if ( Iterables.size(zookeeper) < 2 )
-			throw new JaJcLogicalConfigException("At least two zookeeper servers are required");
+		if ( Iterables.size(zookeeper) == 0 )
+			throw new JaJcLogicalConfigException("You must have a ZooKeeper node");
 		
 		if ( Iterables.size(getNodesByRole("jobtracker")) != 1 )
 			throw new JaJcLogicalConfigException("One jobtracker server is required");
