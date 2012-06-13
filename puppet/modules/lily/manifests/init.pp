@@ -15,7 +15,9 @@ class lily::repository {
   
   apt::key {"lily-repo-pubkey":
     ensure => present,
-    source  => "http://${user}:${password}@lilyproject.org/enterprise/packages/1.2/lilyproject.packages.pubkey",
+    http_user => $user,
+    http_passwd => $password,
+    source  => "http://lilyproject.org/enterprise/packages/1.2/lilyproject.packages.pubkey",
   }
   
   apt::sources_list { "lily":

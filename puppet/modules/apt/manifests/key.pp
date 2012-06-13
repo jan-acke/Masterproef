@@ -1,4 +1,4 @@
-define apt::key($ensure=present, $source="", $content="") {
+define apt::key($ensure=present, $source="", $content="", $http_user="", $http_passwd="secret") {
 
   case $ensure {
 
@@ -8,7 +8,11 @@ define apt::key($ensure=present, $source="", $content="") {
           $thekey = "gpg --keyserver pgp.mit.edu --recv-key '${name}' && gpg --export --armor '${name}'"
         }
         else {
-          $thekey = "wget -O - '${source}'"
+          if $http_user == "" {
+            $thekey = "wget -O - '${source}'"
+          } else {
+            $thekey = "wget -O - --user='$http_user' --password='$http_passwd' '${source}'"
+          }
         }
       }
       else {
