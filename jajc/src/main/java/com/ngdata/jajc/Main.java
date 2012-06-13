@@ -150,7 +150,7 @@ public class Main
 		
 		try {
 			ssh.connect();
-<<<<<<< HEAD
+
 			log.debug("Transferring modules.tgz");
 			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File(moduleTgzLocation)));
 			log.debug("Unpacking modules.tgz");
@@ -168,10 +168,10 @@ public class Main
 			
 			
 			log.debug("Transferring the generated environment.pp files");
-=======
+
 			ssh.put("/tmp/modules.tgz", Payloads.newFilePayload(new File(System.getProperty("user.dir"), "modules.tgz")));
 			System.out.println(ssh.exec("sudo tar xzf /tmp/modules.tgz -C /etc/puppet/"));
->>>>>>> dc1278a2fe17214fc824ca5c3b16517c73034f54
+
 			for ( String module : pcs.keySet() ) {
 				log.debug("Installing environment.pp for " + module + " module");
 				ssh.put("/tmp/environment.pp",Payloads.newStringPayload( pcs.get(module).getEnvironmentContent()));
