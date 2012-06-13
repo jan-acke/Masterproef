@@ -4,8 +4,8 @@ This works only on ubuntu lucid boxes.
 
 1. Clone
 2. 
-   a. Download an oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to puppet/modules/java/files. If you're going to use Openjdk you can skip this step (2a).
-   b. Download ActiveMQ from apache, place the tar.gz file in puppet/modules/mcollective/files/activemq.tgz, it must match this name for now.
+   a. Download an oracle-jdk binary (eg http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u31-download-1501634.html) to the jajc directory 
+   b. Download ActiveMQ from apache, place the tar.gz file in the jajc directory as activemq.tgz, it must match this name for now.
 
 Make sure you download the correct version: certain images on ec2 are 64bit only, some are 32bit, others support both.
 
@@ -32,10 +32,9 @@ Make sure you download the correct version: certain images on ec2 are 64bit only
    d. Specify your lily repository credentials in the lily-section of the userConfig, if you don't use lily, you can give bogus info here, they are still required though.
    e. You can add as many options as you want for the cdh3 services in their respective sections in userConfig, they will be set accordingly when the cluster starts.
    
-4. Create a tarball of the puppet/modules directory and place it in the jajc directory:
-   In the puppet directory: execute tar czf ../jajc/modules.tgz modules/
+4. No longer necessary
 
-5. In the jajc directory : execute "mvn exec:java"
+5. In the jajc directory : execute "mvn exec:java", there're two possible options: location of the setup.yml file and location of the puppet modules directory: eg 'mvn exec:java -Dexec.args="--yml-file=/home/username/mysetup.yml" -Dexec.args="--moduledir=/tmp/test/modules'. The modules directory must be named "modules"!!
 
 After a while the build will be completed and puppet should run on the cluster.
 

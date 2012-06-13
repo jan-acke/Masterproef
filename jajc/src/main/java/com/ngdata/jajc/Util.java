@@ -29,7 +29,7 @@ public class Util {
 		taos.finish();
 		taos.close();
 		gcos.close();
-		//bos.close();
+		bos.close();
 		fos.close();
 	}
 	
@@ -39,8 +39,8 @@ public class Util {
 		taos.putArchiveEntry(taos.createArchiveEntry(f, name));
 		
 		if (f.isFile()) {
-	//		log.debug("Copying " + f.getName() + " to tar");
-			IOUtils.copy(new FileInputStream(f), taos, 512000);
+			//log.debug("Copying " + f.getName() + " to tar");
+			IOUtils.copy(new FileInputStream(f), taos);
 			taos.closeArchiveEntry();
 		}
 		else {

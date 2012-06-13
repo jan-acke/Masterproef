@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.jclouds.compute.RunScriptOnNodesException;
 import org.jclouds.compute.domain.ExecResponse;
@@ -40,7 +44,7 @@ public class Main
 	private String java_home;
 	
 	
-	public Main(String configFileName) throws Exception {
+	public Main(String configFileName, String moduledir) throws Exception {
 		
 		IConfig configuration = YamlConfigReader.createYAMLConfig(configFileName);
 		
@@ -63,7 +67,7 @@ public class Main
 		log.info("Installing necessary components for puppet");
 		initializeAllNodes();
 		log.info("Configuring puppet master");
-		initializePuppetMaster();
+		initializePuppetMaster(moduledir);
 		log.info("Starting puppet agents");
 		startPuppetAgents();
 		
@@ -119,7 +123,7 @@ public class Main
 		
 	}
 	
-	private void initializePuppetMaster() throws JajcException, IOException {
+	private void initializePuppetMaster(String moduledir) throws JajcException, IOException {
 		ScriptBuilder master = new ScriptBuilder();
 		master.addStatement(Statements.exec("mkdir -p /etc/puppet/manifests"));
 		master.addStatement(Statements.createOrOverwriteFile("/etc/puppet/manifests/site.pp", ManifestBuilder.createPuppetManifest(nodes)));
@@ -140,7 +144,7 @@ public class Main
 		
 		log.debug("Creating /tmp/modules.tgz");
 		String moduleTgzLocation = "/tmp/modules.tgz";
-		Util.createTgz("../puppet/modules" , moduleTgzLocation);
+		Util.createTgz(moduledir , moduleTgzLocation);
 		
 		SshClient ssh = AbstractProvider.getInstance().getSshClient(pm);
 		
@@ -178,8 +182,24 @@ public class Main
 	}
 
 	public static void main( String[] args ) throws Exception {
-		new Main("setup.yml");
+		String ymlfile = "setup.yml";
+		String moduledir = "../puppet/modules";
+		CommandLineParser clp = new PosixParser();
+		CommandLine line = null;	
+		Options options = new Options();
+		options.addOption("f", "yml-file", true, "The .yml that contains the cluster configuration, defaults to setup.yml");
+		options.addOption("m" , "moduledir" , true , "Location of the puppet modules directory that needs to be installed on the puppet master, defaults to ../puppet/modules");
+		line = clp.parse(options, args);
+		
+		if (line.hasOption("yml-file"))
+			ymlfile = line.getOptionValue("yml-file");
+		if (line.hasOption("moduledir"))
+			moduledir = line.getOptionValue("moduledir");
+		
+		new Main(ymlfile , moduledir);
 		
     }
+	
+	
     
 }
